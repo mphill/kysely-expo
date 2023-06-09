@@ -1,0 +1,8 @@
+{
+  "name": "kysely-expo",
+  "version": "0.0.1",
+  "description": "Expo support for Kysely",
+  "scripts": {},
+  "author": "mphill",
+  "license": "MIT"
+}
