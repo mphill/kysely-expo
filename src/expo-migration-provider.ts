@@ -1,5 +1,4 @@
 import { Migration, MigrationProvider } from "kysely";
-import { Asset } from "expo-asset";
 
 type ExpoMigrationProviderProps = {
 	migrations: Record<string, Migration>;

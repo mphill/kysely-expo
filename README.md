@@ -10,7 +10,7 @@ Kysely is a type-safe SQL query builder that conveintly generates and executes S
 
 - Install dependencies 
 
-`npx expo install expo-file-system kysely expo-sqlite`
+`npx expo install kysely expo-sqlite`
 
 - Usage
 
