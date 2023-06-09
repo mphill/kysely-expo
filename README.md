@@ -29,7 +29,15 @@ const database = new Kysely<Database>({
   }),
 });
 
+await database
+  .insertInto("logs")
+  .values({
+    message: "Important log message",
+    created_at: new Date(),
+  })
+  .execute();
 ```
+
 ## Migration Support
 
 Normally migrations would be placed in a migrations folder and the Node.js fs module reads the files. With React Native and Expo, file system access must be done through a special library https://docs.expo.dev/versions/latest/sdk/filesystem/
