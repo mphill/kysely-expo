@@ -8,7 +8,11 @@ Kysely is a type-safe SQL query builder that conveintly generates and executes S
 
 ## Getting Started
 
+- Install dependencies 
+
 `npx expo install expo-file-system kysely expo-sqlite`
+
+- Usage
 
 ```ts
 import { ExpoDialect } from "kysely-expo";
@@ -19,7 +23,7 @@ interface LogTable {
   created_at: string;
 }
 
-export type Database = {
+interface Database {
   logs: LogTable;
 };
 
