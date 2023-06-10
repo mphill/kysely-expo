@@ -54,25 +54,27 @@ export class ExpoDriver implements Driver {
 		this.#connection = new ExpoConnection(config);
 	}
 
-	beginTransaction(connection: DatabaseConnection): Promise<void> {
-		throw new Error("Transactions are not supported.");
-	}
-
 	async releaseConnection(): Promise<void> {
 		this.#connectionMutex.unlock();
 	}
 
 	async init(): Promise<void> {}
-	async acquireConnection(): Promise<DatabaseConnection> {
+
+	async acquireConnection(): Promise<ExpoConnection> {
 		await this.#connectionMutex.lock();
 		return this.#connection;
 	}
 
-	commitTransaction(connection: ExpoConnection): Promise<void> {
-		throw new Error("All queries are automatically commited with success.");
+	async beginTransaction(connection: ExpoConnection): Promise<void> {
+		await connection.directQuery("begin transaction");
 	}
-	rollbackTransaction(connection: ExpoConnection): Promise<void> {
-		throw new Error("Rollback is not supported.");
+
+	async commitTransaction(connection: ExpoConnection): Promise<void> {
+		await connection.directQuery("commit");
+	}
+
+	async rollbackTransaction(connection: ExpoConnection): Promise<void> {
+		await connection.directQuery("rollback");
 	}
 
 	async destroy(): Promise<void> {
@@ -123,12 +125,35 @@ class ExpoConnection implements DatabaseConnection {
 					},
 					(tx, err) => {
 						reject(err);
+						return false;
 					},
 				);
 			});
 		});
 
 		return result as Promise<QueryResult<R>>;
+	}
+
+	async directQuery(
+		query: string,
+	): Promise<(SQLite.ResultSetError | SQLite.ResultSet)[]> {
+		const sqliteQuery = new Promise<
+			(SQLite.ResultSetError | SQLite.ResultSet)[]
+		>((resolve, reject) => {
+			this.sqlite.exec([{ sql: query, args: [] }], false, (err, res) => {
+				if (err || !res) {
+					return reject(err);
+				}
+
+				if (res[0]?.error) {
+					return reject(res as unknown as SQLite.ResultSetError[]);
+				}
+
+				resolve(res as unknown as SQLite.ResultSet[]);
+			});
+		});
+
+		return sqliteQuery;
 	}
 
 	streamQuery<R>(
