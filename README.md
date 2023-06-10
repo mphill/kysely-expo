@@ -1,12 +1,21 @@
 
 # Kysely Expo
-
 Support for Kysely with Expo SQLite https://docs.expo.dev/versions/latest/sdk/sqlite/
 
 Kysely is a type-safe SQL query builder that conveintly generates and executes SQL. Visit https://github.com/kysely-org/kysely for more information.
 
 
+🚨  **This is currently alpha, please don't use in production quite yet** 🚨 
+
 ## Getting Started
+- Install kysely-expo
+
+`yarn add https://github.com/mphill/kysely-expo`
+
+or 
+
+`npm i https://github.com/mphill/kysely-expo`
+
 
 - Install dependencies 
 
