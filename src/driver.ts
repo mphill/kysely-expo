@@ -16,6 +16,7 @@ import * as SQLite from "expo-sqlite";
 
 export type ExpoDialectConfig = {
 	database: string;
+	disableForeignKeys?: boolean;
 };
 
 /**
@@ -90,6 +91,14 @@ class ExpoConnection implements DatabaseConnection {
 
 	constructor(config: ExpoDialectConfig) {
 		this.sqlite = SQLite.openDatabase(config.database);
+
+		if (!config.disableForeignKeys) {
+			this.sqlite.exec(
+				[{ sql: "PRAGMA foreign_keys = ON;", args: [] }],
+				false,
+				() => {},
+			);
+		}
 	}
 
 	async closeConnecton(): Promise<void> {
@@ -101,13 +110,37 @@ class ExpoConnection implements DatabaseConnection {
 
 		const readonly = compiledQuery.query.kind === "SelectQueryNode";
 
+		// Convert all Date objects to strings
+		const transformedParmeters = parameters.map((parameter) => {
+			if (parameter instanceof Date) {
+				return parameter.toISOString();
+			}
+
+			return parameter;
+		});
+
 		const result = new Promise<QueryResult<R>>((resolve, reject) => {
 			this.sqlite.transaction((tx) => {
 				tx.executeSql(
 					sql,
-					parameters as number[] | string[],
+					transformedParmeters as number[] | string[],
 					(tx, res) => {
 						if (readonly) {
+							// all properties that end with _at are converted to Date objects, there may be a better way to do this
+							const rows = res.rows._array.map((row) => {
+								const transformedRow: Record<string, unknown> = {};
+
+								for (const key in row) {
+									if (key.endsWith("_at")) {
+										transformedRow[key] = new Date(row[key] as string);
+									} else {
+										transformedRow[key] = row[key];
+									}
+								}
+
+								return transformedRow;
+							});
+
 							resolve({
 								rows: res.rows._array as unknown as R[],
 							});
