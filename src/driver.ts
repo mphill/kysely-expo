@@ -127,6 +127,7 @@ class ExpoConnection implements DatabaseConnection {
 					(tx, res) => {
 						if (readonly) {
 							// all properties that end with _at are converted to Date objects, there may be a better way to do this
+
 							const rows = res.rows._array.map((row) => {
 								const transformedRow: Record<string, unknown> = {};
 
@@ -142,7 +143,7 @@ class ExpoConnection implements DatabaseConnection {
 							});
 
 							resolve({
-								rows: res.rows._array as unknown as R[],
+								rows: rows as unknown as R[],
 							});
 						} else {
 							const result: QueryResult<R> = {
@@ -178,6 +179,7 @@ class ExpoConnection implements DatabaseConnection {
 					return reject(err);
 				}
 
+				// @ts-ignore
 				if (res[0]?.error) {
 					return reject(res as unknown as SQLite.ResultSetError[]);
 				}
