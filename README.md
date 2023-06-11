@@ -25,11 +25,12 @@ or
 
 ```ts
 import { ExpoDialect } from "kysely-expo";
+import { Generated } from "kysely";
 
 interface LogTable {
   id: Generated<number>;
   message: string;
-  created_at: string;
+  created_at: Generated<Date>
 }
 
 interface Database {
