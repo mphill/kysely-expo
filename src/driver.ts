@@ -17,6 +17,7 @@ import * as SQLite from "expo-sqlite";
 export type ExpoDialectConfig = {
 	database: string;
 	disableForeignKeys?: boolean;
+	debug?: boolean;
 };
 
 /**
@@ -88,9 +89,11 @@ export class ExpoDriver implements Driver {
  */
 class ExpoConnection implements DatabaseConnection {
 	sqlite: SQLite.WebSQLDatabase;
+	debug: boolean;
 
 	constructor(config: ExpoDialectConfig) {
 		this.sqlite = SQLite.openDatabase(config.database);
+		this.debug = config.debug ?? false;
 
 		if (!config.disableForeignKeys) {
 			this.sqlite.exec(
@@ -115,9 +118,12 @@ class ExpoConnection implements DatabaseConnection {
 			if (parameter instanceof Date) {
 				return parameter.toISOString();
 			}
-
 			return parameter;
 		});
+
+		if (this.debug) {
+			console.debug(`query: ${sql}`);
+		}
 
 		const result = new Promise<QueryResult<R>>((resolve, reject) => {
 			this.sqlite.transaction((tx) => {
@@ -127,19 +133,14 @@ class ExpoConnection implements DatabaseConnection {
 					(tx, res) => {
 						if (readonly) {
 							// all properties that end with _at are converted to Date objects, there may be a better way to do this
-
 							const rows = res.rows._array.map((row) => {
-								const transformedRow: Record<string, unknown> = {};
-
 								for (const key in row) {
+									// check if the row has a property any properties that end with _at
 									if (key.endsWith("_at")) {
-										transformedRow[key] = new Date(row[key] as string);
-									} else {
-										transformedRow[key] = row[key];
+										row[key] = new Date(row[key]);
 									}
 								}
-
-								return transformedRow;
+								return row;
 							});
 
 							resolve({
