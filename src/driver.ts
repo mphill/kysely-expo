@@ -195,7 +195,7 @@ export class ExpoDriver implements Driver {
  * Expo connection for Kysely.
  */
 class ExpoConnection implements DatabaseConnection {
-	sqlite: SQLite.WebSQLDatabase;
+	sqlite: SQLite.SQLiteDatabase;
 	debug: boolean;
 
 	constructor(config: ExpoDialectConfig) {
