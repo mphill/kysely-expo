@@ -11,13 +11,6 @@ import {
 	QueryResult,
 	Dialect,
 	CompiledQuery,
-	DatabaseMetadataOptions,
-	TableMetadata,
-	sql,
-	SchemaMetadata,
-	DEFAULT_MIGRATION_TABLE,
-	DEFAULT_MIGRATION_LOCK_TABLE,
-	DatabaseMetadata,
 } from "kysely";
 import * as SQLite from "expo-sqlite";
 
@@ -37,7 +30,7 @@ export class ExpoDialect implements Dialect {
 		this.config = config;
 	}
 
-	createDriver(): Driver {
+	createDriver(): ExpoDriver {
 		return new ExpoDriver(this.config);
 	}
 	createQueryCompiler(): QueryCompiler {
@@ -48,101 +41,7 @@ export class ExpoDialect implements Dialect {
 	}
 	// rome-ignore lint/suspicious/noExplicitAny: <explanation>
 	createIntrospector(db: Kysely<any>): DatabaseIntrospector {
-		return new ExpoInspector(db);
-	}
-}
-
-/**
- * This is fixed in kysely master and can be removed after 0.25.1 is released.
- */
-class ExpoInspector implements DatabaseIntrospector {
-	// rome-ignore lint/suspicious/noExplicitAny: <explanation>
-	readonly #db: Kysely<any>;
-
-	// rome-ignore lint/suspicious/noExplicitAny: <explanation>
-	constructor(db: Kysely<any>) {
-		this.#db = db;
-	}
-
-	async getSchemas(): Promise<SchemaMetadata[]> {
-		// Sqlite doesn't support schemas.
-		return [];
-	}
-
-	async getTables(
-		options: DatabaseMetadataOptions = { withInternalKyselyTables: false },
-	): Promise<TableMetadata[]> {
-		let query = this.#db
-			.selectFrom("sqlite_master")
-			.where("type", "in", ["table", "view"])
-			.where("name", "not like", "sqlite_%")
-			.select("name")
-			.orderBy("name")
-			.$castTo<{ name: string }>();
-
-		if (!options.withInternalKyselyTables) {
-			query = query
-				.where("name", "!=", DEFAULT_MIGRATION_TABLE)
-				.where("name", "!=", DEFAULT_MIGRATION_LOCK_TABLE);
-		}
-
-		const tables = await query.execute();
-		return Promise.all(tables.map(({ name }) => this.#getTableMetadata(name)));
-	}
-
-	async getMetadata(
-		options?: DatabaseMetadataOptions,
-	): Promise<DatabaseMetadata> {
-		return {
-			tables: await this.getTables(options),
-		};
-	}
-
-	async #getTableMetadata(table: string): Promise<TableMetadata> {
-		const db = this.#db;
-
-		// Get the SQL that was used to create the table.
-		const tableDefinition = await db
-			.selectFrom("sqlite_master")
-			.where("name", "=", table)
-			.select(["sql", "type"])
-			.$castTo<{ sql: string | undefined; type: string }>()
-			.executeTakeFirstOrThrow();
-
-		// Try to find the name of the column that has `autoincrement` 🤦
-		const autoIncrementCol = tableDefinition.sql
-			?.split(/[\(\),]/)
-			?.find((it) => it.toLowerCase().includes("autoincrement"))
-			?.trimStart()
-			?.split(/\s+/)?.[0]
-			?.replace(/["`]/g, "");
-
-		const columns = await db
-			.selectFrom(
-				sql<{
-					name: string;
-					type: string;
-					notnull: 0 | 1;
-
-					// rome-ignore lint/suspicious/noExplicitAny: <explanation>
-					dflt_value: any;
-				}>`pragma_table_info(${table})`.as("table_info"),
-			)
-			.select(["name", "type", "notnull", "dflt_value"])
-			.orderBy("cid")
-			.execute();
-
-		return {
-			name: table,
-			isView: tableDefinition.type === "view",
-			columns: columns.map((col) => ({
-				name: col.name,
-				dataType: col.type,
-				isNullable: !col.notnull,
-				isAutoIncrementing: col.name === autoIncrementCol,
-				hasDefaultValue: col.dflt_value != null,
-			})),
-		};
+		return new SqliteIntrospector(db);
 	}
 }
 
@@ -195,7 +94,7 @@ export class ExpoDriver implements Driver {
  * Expo connection for Kysely.
  */
 class ExpoConnection implements DatabaseConnection {
-	sqlite: SQLite.WebSQLDatabase;
+	sqlite: SQLite.WebSQLDatabase; // @note this is deprecated in 11.1.3
 	debug: boolean;
 
 	constructor(config: ExpoDialectConfig) {
@@ -248,6 +147,14 @@ class ExpoConnection implements DatabaseConnection {
 									if (key.endsWith("_at")) {
 										row[key] = new Date(row[key]);
 									}
+
+									if (
+										key.startsWith("is_") ||
+										key.startsWith("has_") ||
+										key.endsWith("_flag")
+									) {
+										row[key] = Boolean(row[key]);
+									}
 								}
 								return row;
 							});
@@ -259,8 +166,7 @@ class ExpoConnection implements DatabaseConnection {
 							const result: QueryResult<R> = {
 								numUpdatedOrDeletedRows: BigInt(res.rowsAffected),
 								numAffectedRows: BigInt(res.rowsAffected),
-								// rome-ignore lint/suspicious/noExplicitAny: <explanation>
-								insertId: res.insertId as any,
+								insertId: res.insertId ? BigInt(res.insertId) : undefined,
 								rows: [],
 							};
 
@@ -331,26 +237,4 @@ class ConnectionMutex {
 
 		resolve?.();
 	}
-}
-
-/**
- * Take a semver version and see if it's less than  the given version.
- * @param version
- * @param targetVersion
- * @returns true if the version is less than or equal to the target version.
- */
-function isVersionLessThan(version: string, targetVersion: string): boolean {
-	const versionParts = version.split(".");
-	const targetVersionParts = targetVersion.split(".");
-
-	for (let i = 0; i < versionParts.length; i++) {
-		const versionPart = parseInt(versionParts[i]);
-		const targetVersionPart = parseInt(targetVersionParts[i]);
-
-		if (versionPart < targetVersionPart) {
-			return true;
-		}
-	}
-
-	return false;
 }
