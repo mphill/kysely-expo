@@ -4,7 +4,8 @@
   "description": "Expo support for Kysely",
   "author": "mphill",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint ."
   },
   "files": [
     "lib/"
@@ -20,6 +21,9 @@
     "kysely": "^0.26.1"
   },
   "devDependencies": {
-    "rome": "12.1.3"
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-universe": "^12.0.0",
+    "prettier": "^3.1.1"
   }
 }
