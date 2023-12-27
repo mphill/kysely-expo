@@ -14,11 +14,11 @@
   "license": "MIT",
   "peerDependencies": {
     "expo-sqlite": "^10.3.0",
-    "kysely": "^0.26.1"
+    "kysely": "^0.26.3"
   },
   "dependencies": {
     "expo-sqlite": "^10.3.0",
-    "kysely": "^0.26.1"
+    "kysely": "^0.26.3"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
