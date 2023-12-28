@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { Dialect, Generated, Kysely, Migrator, sql } from "kysely";
+import { Generated, Kysely, Migrator, sql } from "kysely";
 import { ExpoDialect, ExpoMigrationProvider } from "kysely-expo";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -34,7 +34,7 @@ export default function App() {
   });
 
   const database = new Kysely<Database>({
-    dialect: dialect,
+    dialect,
   });
 
   const migrator = new Migrator({
@@ -61,26 +61,26 @@ export default function App() {
     }),
   });
 
-  // useMemo(
-  //   () =>
-  //     migrator.migrateToLatest().then((result) => {
-  //       console.log("migration result", result);
-  //     }),
-  //   [],
-  // );
+  useMemo(
+    () =>
+      migrator.migrateToLatest().then((result) => {
+        console.log("migration result", result);
+      }),
+    [],
+  );
 
-  // useEffect(() => {
-  //   console.log(
-  //     `Database path: ${decodeURIComponent(FileSystem.documentDirectory)}`,
-  //   );
+  useEffect(() => {
+    console.log(
+      `Database path: ${decodeURIComponent(FileSystem.documentDirectory)}`,
+    );
 
-  //   dialect
-  //     .createDriver()
-  //     .getDatabaseRuntimeVersion()
-  //     .then((version) => {
-  //       console.log("database version", version);
-  //     });
-  // }, []);
+    dialect
+      .createDriver()
+      .getDatabaseRuntimeVersion()
+      .then((version) => {
+        console.log("database version", version);
+      });
+  }, []);
 
   const handleInsert = async () => {
     const result = await database
