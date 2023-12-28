@@ -83,14 +83,14 @@ await database
 
 ## Date and Boolean Support
 
-With Javascript there are no types with runtime, and SQLite doesn't support Date or booleans.  It would be annoying to have to convert all your dates to strings and booleans to 0 or 1 and vice versa.
+SQLite doesn't support Date or booleans, its actually a string or integer for dates and an 0 or 1 for boolean (typically).  It would be annoying to have to convert all your dates to strings and booleans to 0 or 1 and vice versa.
 
-It's not practical or possible to try to analyze your result sets to determine the type of data returned. So as a solution this library has adopted a naming convention.
+It's also not practical or possible to try to analyze your result sets to determine the type of data returned. So as a solution this library has adopted a column naming convention that will apply transforms.
 
-Depending on the name of the column it convert `Date` and `boolean` types to the correct SQLite types if you following the naming conventions below.
+Depending on the name of the column it will convert `Date` and `boolean` types to the correct SQLite types if you following the naming conventions below.
 
 
-This feature can be disabled by setting `nameBasedCasts: false` in the ExpoDialect options.
+This feature can be disabled by setting `disableNameBasedCasts: true` in the ExpoDialect options.
 
 
 ### Dates
@@ -99,6 +99,10 @@ Store dates as a `TEXT` type and ensure your column name ends with `_at`.  This 
 
 ### Booleans
 Store boolean as an `INTEGER` type and ensure your column starts with `is_`, `has_` or ends with `_flag`.  This library will automatically convert the 0 or 1 to a boolean.
+
+These type converts can be overridden by using the `typeConverters` properties.
+
+
 
 
 ## Migration Support

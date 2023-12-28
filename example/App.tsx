@@ -1,31 +1,19 @@
 import { StatusBar } from "expo-status-bar";
-import { Generated, Kysely, Migrator, sql } from "kysely";
+import { Kysely, Migrator, sql } from "kysely";
 import { ExpoDialect, ExpoMigrationProvider } from "kysely-expo";
 import { useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Button, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import * as FileSystem from "expo-file-system";
-
-interface LogTable {
-  id: Generated<number>;
-  message: string;
-  is_error: boolean;
-  created_at: Generated<Date>;
-}
+import { BrandTable } from "./tables/brand-table";
+import { PhoneTable } from "./tables/phone-table";
 
 interface Database {
-  logs: LogTable;
+  brands: BrandTable;
+  phones: PhoneTable;
 }
 
 const dialect = new ExpoDialect({
-  database: "example-sqlite1.db",
+  database: "cars-sqlite3.db",
   debug: true,
 });
 
@@ -42,15 +30,53 @@ const migrator = new Migrator({
           console.log("running migration 1");
 
           await db.schema
-            .createTable("logs")
+            .createTable("brands")
             .modifyEnd(sql`STRICT`)
             .addColumn("id", "integer", (col) =>
               col.primaryKey().autoIncrement(),
             )
-            .addColumn("message", "text", (col) => col.notNull())
-            .addColumn("is_error", "integer", (col) => col.notNull())
+            .addColumn("name", "text", (col) => col.notNull().unique())
             .addColumn("created_at", "text", (col) => col.notNull())
+            .ifNotExists()
             .execute();
+
+          // Seed brands
+
+          const brands = [
+            { name: "Apple", created_at: new Date() },
+            { name: "Samsung", created_at: new Date() },
+            { name: "Google", created_at: new Date() },
+          ];
+
+          await db.insertInto("brands").values(brands).execute();
+
+          await db.schema
+            .createTable("phones")
+            .addColumn("id", "integer", (col) =>
+              col.primaryKey().autoIncrement(),
+            )
+            .addColumn("brand_id", "integer", (col) =>
+              col.notNull().references("brands.id"),
+            )
+            .addColumn("name", "text", (col) => col.notNull().unique())
+            .ifNotExists()
+            .execute();
+
+          // Seed phones
+
+          const phones = [
+            { brand_id: 1, name: "iPhone 12" },
+            { brand_id: 1, name: "iPhone 12 Pro" },
+            { brand_id: 1, name: "iPhone 12 Pro Max" },
+            { brand_id: 2, name: "Galaxy S21" },
+            { brand_id: 2, name: "Galaxy S21+" },
+            { brand_id: 2, name: "Galaxy S21 Ultra" },
+            { brand_id: 3, name: "Pixel 5" },
+            { brand_id: 3, name: "Pixel 4a" },
+            { brand_id: 3, name: "Pixel 4a 5G" },
+          ];
+
+          await db.insertInto("phones").values(phones).execute();
         },
       },
     },
@@ -68,7 +94,7 @@ export default function App() {
   );
 
   useEffect(() => {
-    console.log(
+    console.debug(
       `Database path: ${decodeURIComponent(FileSystem.documentDirectory)}`,
     );
 
@@ -77,33 +103,41 @@ export default function App() {
       .getDatabaseRuntimeVersion()
       .then((version) => {
         console.log("database version", version);
-      });
+      }, console.error);
   }, []);
 
-  const handleInsert = async () => {
-    const result = await database
-      .insertInto("logs")
-      .values({
-        message: "Important log message",
-        is_error: Math.random() < 0.5 ? true : false, // Randomly true or false
-        created_at: new Date(),
-      })
-      .execute();
+  const getRandomNumberBetween = (min: number, max: number) =>
+    Math.floor(Math.random() * (max - min + 1) + min);
 
-    setConsoleText(`Inserted record with primary key: ${result[0].insertId}`);
+  const handleInsert = async () => {
+    console.log("inserting");
+
+    database
+      .insertInto("phones")
+      .values({
+        name: "iPhone " + getRandomNumberBetween(10, 15),
+        brand_id: 1,
+      })
+      .execute()
+      .then((result) => {
+        console.log("insert result", result);
+        setConsoleText(
+          `Inserted record with primary key: ${result[0].insertId}`,
+        );
+      }, console.error);
   };
 
   const handleSelect = async () => {
-    const logs = await database.selectFrom("logs").selectAll().execute();
+    const phones = await database
+      .selectFrom("phones")
+      .innerJoin("brands", "phones.brand_id", "brands.id")
+      .select(["brands.name as brand", "phones.name"])
+      .orderBy("phones.name", "asc")
+      .execute();
 
-    console.log(logs);
-    const text = logs
-      .map(
-        (log) =>
-          `${log.message} @ ${log.created_at.toDateString()} : error = ${
-            log.is_error
-          }`,
-      )
+    console.log(phones);
+    const text = phones
+      .map((phone) => `${phone.name} ${phone.brand}`)
       .join("\n");
 
     setConsoleText(text);
@@ -111,13 +145,13 @@ export default function App() {
 
   const handleDelete = async () => {
     const record = await database
-      .selectFrom("logs")
+      .selectFrom("phones")
       .select(["id"])
       .limit(1)
       .executeTakeFirst();
 
     if (record !== undefined) {
-      await database.deleteFrom("logs").where("id", "=", record.id).execute();
+      await database.deleteFrom("phones").where("id", "=", record.id).execute();
 
       setConsoleText(`Deleted record with primary key: ${record.id}`);
     } else {
@@ -127,8 +161,8 @@ export default function App() {
 
   const handleUpdate = async () => {
     const record = await database
-      .updateTable("logs")
-      .set({ message: `Updated message at ${new Date()}` })
+      .updateTable("phones")
+      .set({ created_at: new Date() })
       .executeTakeFirst();
 
     setConsoleText(`Matching rows ${record?.numUpdatedRows}`);
@@ -182,5 +216,10 @@ const styles = StyleSheet.create({
   text: {
     paddingHorizontal: 5,
     color: "#fff",
+  },
+
+  consoleText: {
+    paddingHorizontal: 5,
+    color: "#39FF14",
   },
 });

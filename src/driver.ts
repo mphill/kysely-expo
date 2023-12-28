@@ -17,12 +17,13 @@ import * as SQLite from "expo-sqlite";
 export type ExpoDialectConfig = {
   database: string;
   disableForeignKeys?: boolean;
+  disableNameBasedCasts?: boolean;
   debug?: boolean;
   // “SQLite stores JSON as ordinary text. Backwards compatibility constraints mean that SQLite is only able to store values that are NULL, integers, floating-point numbers, text, and BLOBs. It is not possible to add a sixth “JSON” type.”
   typeConverters?: {
-    boolean?: (value: string) => boolean;
-    date?: (value: string) => boolean;
-    json?: (value: string) => boolean;
+    boolean?: (columnName: string) => boolean;
+    date?: (columnName: string) => boolean;
+    json?: (columnName: string) => boolean;
   };
 };
 
@@ -33,6 +34,16 @@ export class ExpoDialect implements Dialect {
   config: ExpoDialectConfig;
 
   constructor(config: ExpoDialectConfig) {
+    if (!config.typeConverters && !config.disableNameBasedCasts) {
+      config.typeConverters = {
+        boolean: (columnName) =>
+          columnName.startsWith("is_") ||
+          columnName.startsWith("has_") ||
+          columnName.endsWith("_flag"),
+        date: (columnName) => columnName.endsWith("_at"),
+      };
+    }
+
     this.config = config;
   }
 
@@ -90,9 +101,16 @@ export class ExpoDriver implements Driver {
   }
 
   async getDatabaseRuntimeVersion() {
-    return await this.#connection.directQuery(
-      "select sqlite_version() as version;",
-    );
+    try {
+      const res = await this.#connection.directQuery(
+        "select sqlite_version() as version;",
+      );
+
+      return res[0].rows[0].version;
+    } catch (e) {
+      console.error(e);
+      return "unknown";
+    }
   }
 }
 
@@ -102,6 +120,7 @@ export class ExpoDriver implements Driver {
 class ExpoConnection implements DatabaseConnection {
   sqlite: SQLite.SQLiteDatabase;
   debug: boolean;
+  config: ExpoDialectConfig;
 
   constructor(config: ExpoDialectConfig) {
     this.sqlite = SQLite.openDatabase(config.database);
@@ -110,6 +129,8 @@ class ExpoConnection implements DatabaseConnection {
     if (!config.disableForeignKeys) {
       this.directQuery("PRAGMA foreign_keys = ON;");
     }
+
+    this.config = config;
   }
 
   async closeConnection(): Promise<void> {
@@ -142,20 +163,18 @@ class ExpoConnection implements DatabaseConnection {
           transformedParameters as number[] | string[],
           (tx, res) => {
             if (readonly) {
-              // all properties that end with _at are converted to Date objects, there may be a better way to do this
+              // @todo optimize this loop.  Sample 1 row and determine the index of the boolean/date columns.  Then use that index to convert the values in the loop below.
+
               const rows = res.rows._array.map((row) => {
                 for (const key in row) {
-                  // check if the row has a property any properties that end with _at
-                  if (key.endsWith("_at")) {
-                    row[key] = new Date(row[key]);
+                  // Check if the row is a boolean
+                  if (this.config.typeConverters?.boolean?.(key)) {
+                    row[key] = Boolean(row[key]);
                   }
 
-                  if (
-                    key.startsWith("is_") ||
-                    key.startsWith("has_") ||
-                    key.endsWith("_flag")
-                  ) {
-                    row[key] = Boolean(row[key]);
+                  // Check if the row is a date
+                  if (this.config.typeConverters?.date?.(key)) {
+                    row[key] = new Date(row[key]);
                   }
                 }
                 return row;
@@ -186,12 +205,8 @@ class ExpoConnection implements DatabaseConnection {
     return result as Promise<QueryResult<R>>;
   }
 
-  async directQuery(
-    query: string,
-  ): Promise<(SQLite.ResultSetError | SQLite.ResultSet)[]> {
-    const sqliteQuery = new Promise<
-      (SQLite.ResultSetError | SQLite.ResultSet)[]
-    >((resolve, reject) => {
+  async directQuery(query: string): Promise<SQLite.ResultSet[]> {
+    const sqliteQuery = new Promise<SQLite.ResultSet[]>((resolve, reject) => {
       this.sqlite.exec([{ sql: query, args: [] }], false, (err, res) => {
         if (err || !res) {
           return reject(err);
