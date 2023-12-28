@@ -24,42 +24,40 @@ interface Database {
   logs: LogTable;
 }
 
-export default function App() {
-  const [consoleText, setConsoleText] = useState("");
-  const [showQuery, setShowQuery] = useState(false);
+const dialect = new ExpoDialect({
+  database: "example-sqlite1.db",
+  debug: true,
+});
 
-  const dialect = new ExpoDialect({
-    database: "example-sqlite1.db",
-    debug: showQuery,
-  });
+const database = new Kysely<Database>({
+  dialect,
+});
 
-  const database = new Kysely<Database>({
-    dialect,
-  });
+const migrator = new Migrator({
+  db: database,
+  provider: new ExpoMigrationProvider({
+    migrations: {
+      "1": {
+        up: async (db: Kysely<Database>) => {
+          console.log("running migration 1");
 
-  const migrator = new Migrator({
-    db: database,
-    provider: new ExpoMigrationProvider({
-      migrations: {
-        "1": {
-          up: async (db: Kysely<Database>) => {
-            console.log("running migration 1");
-
-            await db.schema
-              .createTable("logs")
-              .modifyEnd(sql`STRICT`)
-              .addColumn("id", "integer", (col) =>
-                col.primaryKey().autoIncrement(),
-              )
-              .addColumn("message", "text", (col) => col.notNull())
-              .addColumn("is_error", "integer", (col) => col.notNull())
-              .addColumn("created_at", "text", (col) => col.notNull())
-              .execute();
-          },
+          await db.schema
+            .createTable("logs")
+            .modifyEnd(sql`STRICT`)
+            .addColumn("id", "integer", (col) =>
+              col.primaryKey().autoIncrement(),
+            )
+            .addColumn("message", "text", (col) => col.notNull())
+            .addColumn("is_error", "integer", (col) => col.notNull())
+            .addColumn("created_at", "text", (col) => col.notNull())
+            .execute();
         },
       },
-    }),
-  });
+    },
+  }),
+});
+export default function App() {
+  const [consoleText, setConsoleText] = useState("");
 
   useMemo(
     () =>
@@ -162,10 +160,7 @@ export default function App() {
 
             alignItems: "center",
           }}
-        >
-          <Text style={styles.text}>Show query</Text>
-          <Switch value={showQuery} onValueChange={setShowQuery} />
-        </View>
+        ></View>
 
         <Button title="Insert" onPress={handleInsert} />
         <Button title="Select" onPress={handleSelect} />
