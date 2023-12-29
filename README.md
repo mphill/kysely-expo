@@ -42,24 +42,11 @@ Supported types in STRICT mode:
 
 For more information, see https://www.sqlite.org/stricttables.html
 
-### Naming Convention Type Conversions
+### Auto Affinity Converter
 
-SQLite doesn't support Date or booleans, its actually a string or integer for dates and an 0 or 1 for boolean (typically).  It would be annoying to have to convert all your dates to strings and booleans to 0 or 1 and vice versa.
+SQLite only has support for 3 basic types: string, number and real (you can consider blob).  SQLite doesn't support Date or booleans, its actually a string or integer for dates and an 0 or 1 for boolean (typically).  It would be annoying to have to convert all your dates to strings and booleans to 0 or 1 and vice versa.
 
-It's also not practical or possible to try to analyze your result sets to determine the type of data returned. So as a solution this library has adopted a column naming convention that will apply transforms.
-
-Depending on the name of the column it will convert `Date` and `boolean` types to the correct SQLite types if you following the naming conventions below.
-
-This feature can be disabled by setting `disableNamingConventionCasts` to `true`.
-
-#### Dates
-
-Kysely Expo store dates as a `TEXT` type and ensure your column name ends with `_at`.  This library will automatically convert an ISO 8601 string to an Date object when querying data.
-
-#### Booleans
-Store boolean as an `INTEGER` type and ensure your column starts with `is_`, `has_` or ends with `_flag`.  This library will automatically convert the 0 or 1 to a boolean.
-
-These type converts can be overridden by using the `typeConverters` properties.
+if you set autoAffinityConversion to true, Expo Kysely will automatically attempt to convert your date automatically so you don't have to worry about doing the conversion yourself.
 
 ## Usage
 
@@ -82,7 +69,7 @@ const database = new Kysely<Database>({
     database: "expo-sqlite.db", // Name of the database file, will be created if it doesn't exist.
     debug: true, // Show SQL statements in console
     disableStrictMode: false, // Disable STRICT mode for tables
-    disableNamingConventionCasts: false, // Disable name based type conversions
+    autoAffinityConversion: true, // Automatically convert SQLite types to JS types
   }),
 });
 

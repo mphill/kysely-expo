@@ -6,4 +6,23 @@ function firstElementOrNull<T>(array: T[]): T | null {
   return array[0];
 }
 
-export { firstElementOrNull };
+function isStringIso8601(date: string): boolean {
+  // @todo benchmark
+  //date.includes("T") && date.includes("-") && date.includes(":")
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(date);
+}
+
+function isStringJson(value: string): boolean {
+  try {
+    JSON.parse(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isStringBoolean(value: string): boolean {
+  return value === "true" || value === "false";
+}
+
+export { firstElementOrNull, isStringIso8601, isStringJson, isStringBoolean };

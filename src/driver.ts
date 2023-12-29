@@ -15,7 +15,7 @@ import {
 import * as SQLite from "expo-sqlite";
 import { ExpoDialectConfig } from "./types/expo-dialect-config";
 
-import { defaultTypeConverter, deserialize, serialize } from "./converter";
+import { deserialize, serialize } from "./converter";
 import { firstElementOrNull } from "./helpers";
 
 /**
@@ -25,10 +25,6 @@ export class ExpoDialect implements Dialect {
   config: ExpoDialectConfig;
 
   constructor(config: ExpoDialectConfig) {
-    if (!config.typeConverters && !config.disableNamingConventionCasts) {
-      config.typeConverters = defaultTypeConverter;
-    }
-
     this.config = config;
   }
 
@@ -170,7 +166,9 @@ class ExpoConnection implements DatabaseConnection {
       throw new Error(res.error.message);
     } else if (this.isResult(res)) {
       if (readonly) {
-        return deserialize(res.rows, this.config.typeConverters);
+        return this.config.autoAffinityConversion
+          ? deserialize(res.rows)
+          : (res as unknown as QueryResult<R>);
       } else {
         const queryResult = {
           numUpdatedOrDeletedRows: BigInt(res.rowsAffected),
