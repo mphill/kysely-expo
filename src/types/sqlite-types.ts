@@ -1,7 +1,11 @@
-export const SQLiteTypes: Readonly<Record<string, string>> = {
+export const SQLiteTypes: Readonly<
+  Record<string, "text" | "real" | "integer">
+> = {
   Boolean: "text",
   DateTime: "text",
-  Float: "real",
+  Decimal: "real",
   Integer: "integer",
   String: "text",
+  BigInt: "integer",
+  Json: "text",
 };

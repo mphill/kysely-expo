@@ -120,6 +120,17 @@ const result = await migrator.migrateToLatest();
 
 ```
 
+## Sample App
+
+A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and preform basic CRUD operations.
+
+To run the example app:
+
+1. Clone the repo: git clone https://github.com/mphill/kysely-expo.git
+2. `cd example`
+3. `yarn install`
+4. `npx expo start`
+
 ## Todo
 
 - [ ] Transaction support
