@@ -12,9 +12,12 @@ interface Database {
   phones: PhoneTable;
 }
 
+const databaseName = "cars23.db";
+
 const dialect = new ExpoDialect({
-  database: "cars-sqlite3.db",
-  debug: true,
+  disableStrictModeCreateTable: false,
+  database: databaseName,
+  debug: false,
 });
 
 const database = new Kysely<Database>({
@@ -29,54 +32,118 @@ const migrator = new Migrator({
         up: async (db: Kysely<Database>) => {
           console.log("running migration 1");
 
-          await db.schema
-            .createTable("brands")
-            .modifyEnd(sql`STRICT`)
-            .addColumn("id", "integer", (col) =>
-              col.primaryKey().autoIncrement(),
-            )
-            .addColumn("name", "text", (col) => col.notNull().unique())
-            .addColumn("created_at", "text", (col) => col.notNull())
-            .ifNotExists()
-            .execute();
+          try {
+            sql`begin transaction;`;
 
-          // Seed brands
+            await db.schema
+              .createTable("brands")
+              .addColumn("id", "integer", (col) =>
+                col.primaryKey().autoIncrement(),
+              )
+              .addColumn("name", "text", (col) => col.notNull().unique())
+              .addColumn("created_at", "text", (col) => col.notNull())
+              .ifNotExists()
+              .execute();
 
-          const brands = [
-            { name: "Apple", created_at: new Date() },
-            { name: "Samsung", created_at: new Date() },
-            { name: "Google", created_at: new Date() },
-          ];
+            // Seed brands
 
-          await db.insertInto("brands").values(brands).execute();
+            const brands = [
+              { name: "Apple", created_at: new Date() },
+              { name: "Samsung", created_at: new Date() },
+              { name: "Google", created_at: new Date() },
+            ];
 
-          await db.schema
-            .createTable("phones")
-            .addColumn("id", "integer", (col) =>
-              col.primaryKey().autoIncrement(),
-            )
-            .addColumn("brand_id", "integer", (col) =>
-              col.notNull().references("brands.id"),
-            )
-            .addColumn("name", "text", (col) => col.notNull().unique())
-            .ifNotExists()
-            .execute();
+            await db.insertInto("brands").values(brands).execute();
 
-          // Seed phones
+            await db.schema
+              .createTable("phones")
+              .addColumn("id", "integer", (col) =>
+                col.primaryKey().autoIncrement(),
+              )
+              .addColumn("brand_id", "integer", (col) =>
+                col.notNull().references("brands.id"),
+              )
+              .addColumn("name", "text", (col) => col.notNull().unique())
+              .addColumn("created_at", "text", (col) => col.notNull())
+              .addColumn("is_active", "integer", (col) => col.notNull())
+              .addColumn("meta_json", "text", (col) => col.notNull())
+              .execute();
 
-          const phones = [
-            { brand_id: 1, name: "iPhone 12" },
-            { brand_id: 1, name: "iPhone 12 Pro" },
-            { brand_id: 1, name: "iPhone 12 Pro Max" },
-            { brand_id: 2, name: "Galaxy S21" },
-            { brand_id: 2, name: "Galaxy S21+" },
-            { brand_id: 2, name: "Galaxy S21 Ultra" },
-            { brand_id: 3, name: "Pixel 5" },
-            { brand_id: 3, name: "Pixel 4a" },
-            { brand_id: 3, name: "Pixel 4a 5G" },
-          ];
+            // Seed phones
 
-          await db.insertInto("phones").values(phones).execute();
+            const phones = [
+              {
+                brand_id: 1,
+                name: "iPhone 12",
+                created_at: new Date(),
+                is_active: true,
+                meta_json: {
+                  foo: "bar",
+                  bar: 1,
+                },
+              },
+              {
+                brand_id: 1,
+                name: "iPhone 12 Pro",
+                created_at: new Date(),
+                is_active: true,
+                meta_json: {
+                  foo: "bar",
+                  bar: 1,
+                },
+              },
+              {
+                brand_id: 2,
+                name: "Galaxy S21",
+                created_at: new Date(),
+                is_active: true,
+                meta_json: {
+                  foo: "bar",
+                  bar: 1,
+                },
+              },
+              {
+                brand_id: 2,
+                name: "Galaxy S21+",
+                created_at: new Date(),
+                is_active: true,
+                meta_json: {
+                  foo: "bar",
+                  bar: 1,
+                },
+              },
+
+              {
+                brand_id: 3,
+                name: "Pixel 5",
+                created_at: new Date(),
+                is_active: true,
+                meta_json: {
+                  foo: "bar",
+                  bar: 1,
+                },
+              },
+              {
+                brand_id: 3,
+                name: "Pixel 4a 5G",
+                created_at: new Date(),
+                is_active: true,
+                meta_json: {
+                  foo: "bar",
+                  bar: 1,
+                },
+              },
+            ];
+
+            await db.insertInto("phones").values(phones).execute();
+
+            sql`commit;`;
+          } catch (error) {
+            console.error("rolling back:", error);
+            sql`rollback;`;
+
+            throw error;
+          }
         },
       },
     },
@@ -95,7 +162,9 @@ export default function App() {
 
   useEffect(() => {
     console.debug(
-      `Database path: ${decodeURIComponent(FileSystem.documentDirectory)}`,
+      `Database path: ${decodeURIComponent(
+        FileSystem.documentDirectory,
+      )}${databaseName}`,
     );
 
     dialect
@@ -110,17 +179,16 @@ export default function App() {
     Math.floor(Math.random() * (max - min + 1) + min);
 
   const handleInsert = async () => {
-    console.log("inserting");
-
     database
       .insertInto("phones")
       .values({
-        name: "iPhone " + getRandomNumberBetween(10, 15),
+        name: "iPhone " + getRandomNumberBetween(3, 8),
         brand_id: 1,
+        created_at: new Date(),
+        is_active: false,
       })
       .execute()
       .then((result) => {
-        console.log("insert result", result);
         setConsoleText(
           `Inserted record with primary key: ${result[0].insertId}`,
         );
@@ -131,11 +199,18 @@ export default function App() {
     const phones = await database
       .selectFrom("phones")
       .innerJoin("brands", "phones.brand_id", "brands.id")
-      .select(["brands.name as brand", "phones.name"])
+      .select([
+        "phones.meta_json",
+        "brands.name as brand",
+        "phones.name",
+        "phones.created_at",
+        "phones.is_active",
+      ])
       .orderBy("phones.name", "asc")
       .execute();
 
     console.log(phones);
+
     const text = phones
       .map((phone) => `${phone.name} ${phone.brand}`)
       .join("\n");
@@ -166,6 +241,39 @@ export default function App() {
       .executeTakeFirst();
 
     setConsoleText(`Matching rows ${record?.numUpdatedRows}`);
+  };
+
+  const handleTransactedInsert = async () => {
+    try {
+      database.transaction().execute(async (trx) => {
+        // good insert
+        trx
+          .insertInto("phones")
+          .values({
+            name: "iPhone (transacted) " + Math.random(),
+            brand_id: 1,
+          })
+          .execute();
+
+        trx
+          .insertInto("phones")
+          .values({
+            name: "iPhone (transacted) ",
+            brand_id: 1,
+          })
+          .execute();
+
+        trx
+          .insertInto("phones")
+          .values({
+            name: "iPhone (transacted) ",
+            brand_id: 1,
+          })
+          .execute();
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -200,6 +308,10 @@ export default function App() {
         <Button title="Select" onPress={handleSelect} />
         <Button title="Delete" onPress={handleDelete} />
         <Button title="Update" onPress={handleUpdate} />
+        {/* <Button
+          title="Transaction Failure"
+          onPress={() => handleTransactedInsert()}
+        /> */}
       </View>
       <StatusBar style="auto" />
     </View>

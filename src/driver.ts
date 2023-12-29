@@ -13,19 +13,10 @@ import {
   CompiledQuery,
 } from "kysely";
 import * as SQLite from "expo-sqlite";
+import { ExpoDialectConfig } from "./types/expo-dialect-config";
 
-export type ExpoDialectConfig = {
-  database: string;
-  disableForeignKeys?: boolean;
-  disableNameBasedCasts?: boolean;
-  debug?: boolean;
-  // “SQLite stores JSON as ordinary text. Backwards compatibility constraints mean that SQLite is only able to store values that are NULL, integers, floating-point numbers, text, and BLOBs. It is not possible to add a sixth “JSON” type.”
-  typeConverters?: {
-    boolean?: (columnName: string) => boolean;
-    date?: (columnName: string) => boolean;
-    json?: (columnName: string) => boolean;
-  };
-};
+import { defaultTypeConverter, deserialize, serialize } from "./converter";
+import { firstElementOrNull } from "./helpers";
 
 /**
  * Expo dialect for Kysely.
@@ -34,14 +25,8 @@ export class ExpoDialect implements Dialect {
   config: ExpoDialectConfig;
 
   constructor(config: ExpoDialectConfig) {
-    if (!config.typeConverters && !config.disableNameBasedCasts) {
-      config.typeConverters = {
-        boolean: (columnName) =>
-          columnName.startsWith("is_") ||
-          columnName.startsWith("has_") ||
-          columnName.endsWith("_flag"),
-        date: (columnName) => columnName.endsWith("_at"),
-      };
+    if (!config.typeConverters && !config.disableNamingConventionCasts) {
+      config.typeConverters = defaultTypeConverter;
     }
 
     this.config = config;
@@ -50,13 +35,15 @@ export class ExpoDialect implements Dialect {
   createDriver(): ExpoDriver {
     return new ExpoDriver(this.config);
   }
+
   createQueryCompiler(): QueryCompiler {
     return new SqliteQueryCompiler();
   }
+
   createAdapter(): DialectAdapter {
     return new SqliteAdapter();
   }
-  // rome-ignore lint/suspicious/noExplicitAny: <explanation>
+
   createIntrospector(db: Kysely<any>): DatabaseIntrospector {
     return new SqliteIntrospector(db);
   }
@@ -106,7 +93,7 @@ export class ExpoDriver implements Driver {
         "select sqlite_version() as version;",
       );
 
-      return res[0].rows[0].version;
+      return res.rows[0].version;
     } catch (e) {
       console.error(e);
       return "unknown";
@@ -137,91 +124,80 @@ class ExpoConnection implements DatabaseConnection {
     return this.sqlite.closeAsync();
   }
 
-  async executeQuery<R>(compiledQuery: CompiledQuery): Promise<QueryResult<R>> {
-    const { sql, parameters } = compiledQuery;
-
-    const readonly =
-      compiledQuery.query.kind === "SelectQueryNode" ||
-      compiledQuery.query.kind === "RawNode";
-
-    // Convert all Date objects to strings
-    const transformedParameters = parameters.map((parameter) => {
-      if (parameter instanceof Date) {
-        return parameter.toISOString();
-      }
-      return parameter;
-    });
-
-    if (this.debug) {
-      console.debug(`query: ${sql}`);
-    }
-
-    const result = new Promise<QueryResult<R>>((resolve, reject) => {
-      this.sqlite.transaction((tx) => {
-        tx.executeSql(
-          sql,
-          transformedParameters as number[] | string[],
-          (tx, res) => {
-            if (readonly) {
-              // @todo optimize this loop.  Sample 1 row and determine the index of the boolean/date columns.  Then use that index to convert the values in the loop below.
-
-              const rows = res.rows._array.map((row) => {
-                for (const key in row) {
-                  // Check if the row is a boolean
-                  if (this.config.typeConverters?.boolean?.(key)) {
-                    row[key] = Boolean(row[key]);
-                  }
-
-                  // Check if the row is a date
-                  if (this.config.typeConverters?.date?.(key)) {
-                    row[key] = new Date(row[key]);
-                  }
-                }
-                return row;
-              });
-
-              resolve({
-                rows: rows as unknown as R[],
-              });
-            } else {
-              const result: QueryResult<R> = {
-                numUpdatedOrDeletedRows: BigInt(res.rowsAffected),
-                numAffectedRows: BigInt(res.rowsAffected),
-                insertId: res.insertId ? BigInt(res.insertId) : undefined,
-                rows: [],
-              };
-
-              resolve(result);
-            }
-          },
-          (tx, err) => {
-            reject(err);
-            return false;
-          },
-        );
-      });
-    });
-
-    return result as Promise<QueryResult<R>>;
+  isError(
+    rs: SQLite.ResultSetError | SQLite.ResultSet,
+  ): rs is SQLite.ResultSetError {
+    return "error" in rs;
   }
 
-  async directQuery(query: string): Promise<SQLite.ResultSet[]> {
-    const sqliteQuery = new Promise<SQLite.ResultSet[]>((resolve, reject) => {
-      this.sqlite.exec([{ sql: query, args: [] }], false, (err, res) => {
-        if (err || !res) {
-          return reject(err);
-        }
+  isResult(
+    rs: SQLite.ResultSetError | SQLite.ResultSet,
+  ): rs is SQLite.ResultSet {
+    return "rows" in rs;
+  }
 
-        // @ts-ignore
-        if (res[0]?.error) {
-          return reject(res as unknown as SQLite.ResultSetError[]);
-        }
+  async executeQuery<R>(compiledQuery: CompiledQuery): Promise<QueryResult<R>> {
+    let { sql, parameters, query } = compiledQuery;
 
-        resolve(res as unknown as SQLite.ResultSet[]);
-      });
-    });
+    // Kysely uses varchar(255) as the default string type which not supported by STRICT mode.
+    if (
+      query.kind === "CreateTableNode" &&
+      !sql.includes("kysely_migration") &&
+      !sql.includes("kysely_migration_lock") &&
+      !sql.includes("STRICT") &&
+      !this.config.disableStrictModeCreateTable
+    ) {
+      sql += " STRICT";
+    }
 
-    return sqliteQuery;
+    const readonly =
+      query.kind === "SelectQueryNode" || query.kind === "RawNode";
+
+    const transformedParameters = serialize([...parameters]);
+
+    if (this.debug) {
+      console.debug(`${query.kind}${readonly ? " (readonly)" : ""}: ${sql}`);
+    }
+
+    const res = firstElementOrNull(
+      await this.sqlite.execAsync(
+        [{ sql: sql, args: transformedParameters }],
+        readonly,
+      ),
+    );
+
+    if (this.isError(res)) {
+      throw new Error(res.error.message);
+    } else if (this.isResult(res)) {
+      if (readonly) {
+        return deserialize(res.rows, this.config.typeConverters);
+      } else {
+        const queryResult = {
+          numUpdatedOrDeletedRows: BigInt(res.rowsAffected),
+          numAffectedRows: BigInt(res.rowsAffected),
+          insertId: res.insertId ? BigInt(res.insertId) : undefined,
+          rows: res.rows as unknown as R[],
+        } satisfies QueryResult<R>;
+
+        if (this.debug) console.log("queryResult", queryResult);
+
+        return queryResult;
+      }
+    } else {
+      throw new Error("Unknown result type");
+    }
+  }
+
+  async directQuery(query: string): Promise<SQLite.ResultSet> {
+    const res = firstElementOrNull(
+      await this.sqlite.execAsync([{ sql: query, args: [] }], false),
+    );
+
+    if (this.isError(res)) {
+      throw new Error(res.error.message);
+    }
+
+    return res as SQLite.ResultSet;
   }
 
   streamQuery<R>(
