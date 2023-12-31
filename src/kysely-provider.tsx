@@ -8,29 +8,40 @@ import React, {
 import { ExpoDialect } from "./driver";
 import { ExpoDialectConfig } from "./types/expo-dialect-config";
 
-// Create the context
+// @todo figure out how to make this a generic context that works everywhere - if that is possible.
 const KyselyContext = createContext<Kysely<any> | null>(null);
 
 // Create the provider component
 export default function KyselyProvider<T>({
   children,
   database,
-}: PropsWithChildren & ExpoDialectConfig) {
+  onInit,
+  disableForeignKeys,
+  disableStrictModeCreateTable,
+  autoAffinityConversion,
+  debug,
+}: PropsWithChildren &
+  ExpoDialectConfig & { onInit?: (kysely: Kysely<T>) => void }) {
   const [kyselyContext, setKyselyContext] = useState<Kysely<T>>();
 
   if (!database) throw new Error("database is required");
 
   const dialect = new ExpoDialect({
-    disableStrictModeCreateTable: false,
-    database: database,
-    debug: true,
-    autoAffinityConversion: true,
+    disableStrictModeCreateTable,
+    database,
+    debug,
+    autoAffinityConversion,
+    disableForeignKeys,
   });
 
   if (!kyselyContext) {
     const database = new Kysely<T>({
       dialect,
     });
+
+    if (onInit) {
+      onInit(database);
+    }
 
     setKyselyContext(database);
 

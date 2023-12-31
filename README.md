@@ -21,7 +21,11 @@ or
 `npm i https://github.com/mphill/kysely-expo`
 
 
-## ExpoDialect Features
+
+## KyselyProvider
+Wrap your app in the KyselyProvider component.  This component will initialize the database and provide a Kysely instance to your app.
+
+## Dialect Features
 
 ### STRICT Table Support
 
@@ -64,22 +68,43 @@ interface Database {
   logs: LogTable;
 }
 
-const database = new Kysely<Database>({
-  dialect: new ExpoDialect({
-    database: "expo-sqlite.db", // Name of the database file, will be created if it doesn't exist.
-    debug: true, // Show SQL statements in console
-    disableStrictMode: false, // Disable STRICT mode for tables
-    autoAffinityConversion: true, // Automatically convert SQLite types to JS types
-  }),
-});
+export default function App() {
+  return (
+    <KyselyProvider<Database>
+      database="logs.db"
+      autoAffinityConversion
+      debug
+      onInit={(database) =>
+        // run migrations here
+      }
+    >
+      <MainScreen />
+    </KyselyProvider>
+  );
+}
 
-await database
-  .insertInto("logs")
-  .values({
-    message: "Important log message",
-    created_at: new Date(),
-  })
-  .execute();
+
+function MainScreen() {
+
+  const { database } = useKysely<Database>();
+  
+  const handleInsert = async () => {
+    const result = await database
+      .insertInto("logs")
+      .values({
+        message: "Important log message",
+        created_at: new Date(),
+      })
+      .execute();
+  }
+
+  return (
+    <View>
+      <Button onPress={handleInsert} title="Insert" />
+    </View>
+  );
+}
+
 ```
 
 ## Migration Support

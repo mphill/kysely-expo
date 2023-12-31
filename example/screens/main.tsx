@@ -1,17 +1,10 @@
 import { StatusBar } from "expo-status-bar";
-import { Kysely, Migrator, sql } from "kysely";
-import {
-  useKysely,
-  ExpoDialect,
-  ExpoMigrationProvider,
-  KyselyProvider,
-} from "kysely-expo";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useKysely } from "kysely-expo";
+import { useState } from "react";
 import { Button, ScrollView, StyleSheet, TextInput, View } from "react-native";
-import * as FileSystem from "expo-file-system";
 import { BrandTable } from "../tables/brand-table";
 import { PhoneTable } from "../tables/phone-table";
-import { getMigrator } from "../migrations";
+
 import runner from "../tests";
 
 export interface Database {
@@ -22,8 +15,6 @@ export interface Database {
 export default function MainScreen() {
   const database = useKysely<Database>();
   const [consoleText, setConsoleText] = useState("");
-
-  getMigrator(database).migrateToLatest().then(console.log, console.error);
 
   const getRandomNumberBetween = (min: number, max: number) =>
     Math.floor(Math.random() * (max - min + 1) + min);
