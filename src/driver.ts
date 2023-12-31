@@ -113,6 +113,10 @@ class ExpoConnection implements DatabaseConnection {
       this.directQuery("PRAGMA foreign_keys = ON;");
     }
 
+    if (!config.disableWal) {
+      this.directQuery("PRAGMA journal_mode = WAL;");
+    }
+
     this.config = config;
   }
 

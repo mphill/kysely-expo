@@ -1,7 +1,6 @@
 import { QueryResult } from "kysely";
 
 import { isStringBoolean, isStringIso8601, isStringJson } from "../helpers";
-import { RealSQLiteTypes, SQLiteTypes } from "../types/sqlite-types";
 
 const serialize = (parameters: unknown[]) => {
   return parameters.map((parameter) => {
@@ -26,14 +25,27 @@ const deserialize = <T>(rows: any[]): QueryResult<T> => {
 
   const processed = rows.map((row) => {
     for (const key in row) {
-      if (isStringIso8601(row[key])) {
-        row[key] = new Date(row[key]);
-      } else if (isStringBoolean(row[key])) {
-        row[key] = row[key] === "true";
+      const value = row[key];
+
+      if (value === null || value === undefined) {
+        continue;
       }
-      //   else if (isStringJson(row[key])) {
-      //     row[key] = JSON.parse(row[key]);
-      //   }
+
+      const type = typeMapping.get(key);
+
+      if (type === "datetime") {
+        row[key] = new Date(value);
+      } else if (type === "boolean") {
+        row[key] = value === "true" ? true : false;
+      } else if (type === "object") {
+        row[key] = JSON.parse(value);
+      } else if (type === "null") {
+        row[key] = null;
+      } else if (type === "number") {
+        row[key] = Number(value);
+      } else if (type === "string") {
+        row[key] = String(value);
+      }
     }
 
     return row;
@@ -44,31 +56,45 @@ const deserialize = <T>(rows: any[]): QueryResult<T> => {
   };
 };
 
+type ValidTypes =
+  | "invalid"
+  | "string"
+  | "number"
+  | "boolean"
+  | "object"
+  | "null"
+  | "datetime";
 // Reverse SQLite affinity mapping.
-const typeIntrospection = (map: object): Map<string, RealSQLiteTypes> => {
+const typeIntrospection = (map: object): Map<string, ValidTypes> => {
   if (map === null || map === undefined) {
     return new Map();
   }
 
-  const typeMapping = new Map<string, RealSQLiteTypes>();
+  const typeMapping = new Map<string, ValidTypes>();
 
   Object.keys(map).forEach((key) => {
     const value = map[key];
 
-    // console.log("process key", key, "value", value);
-
     if (typeof value === "string") {
       if (isStringIso8601(value)) {
-        typeMapping.set(key, SQLiteTypes.DateTime);
+        typeMapping.set(key, "datetime");
       } else if (isStringBoolean(value)) {
-        typeMapping.set(key, SQLiteTypes.Boolean);
+        typeMapping.set(key, "boolean");
       } else if (isStringJson(value)) {
-        typeMapping.set(key, SQLiteTypes.Json);
+        typeMapping.set(key, "object");
       } else {
-        typeMapping.set(key, SQLiteTypes.String);
+        typeMapping.set(key, "string");
       }
+    } else if (typeof value === "number") {
+      typeMapping.set(key, "number");
+    } else if (typeof value === "boolean") {
+      typeMapping.set(key, "boolean");
+    } else if (typeof value === "object") {
+      typeMapping.set(key, "object");
+    } else if (typeof value === "undefined" || value === null) {
+      typeMapping.set(key, "null");
     } else {
-      typeMapping.set(key, SQLiteTypes.Any);
+      throw new Error("unknown type");
     }
   });
 

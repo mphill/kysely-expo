@@ -7,4 +7,6 @@ export type ExpoDialectConfig = {
   disableStrictModeCreateTable?: boolean;
   debug?: boolean;
   autoAffinityConversion?: boolean;
+  // Disable WAL https://www.sqlite.org/wal.html
+  disableWal?: boolean;
 };

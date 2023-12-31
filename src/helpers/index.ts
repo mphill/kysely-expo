@@ -14,8 +14,8 @@ function isStringIso8601(date: string): boolean {
 
 function isStringJson(value: string): boolean {
   try {
-    JSON.parse(value);
-    return true;
+    const result = JSON.parse(value);
+    return result && typeof result === "object";
   } catch {
     return false;
   }

@@ -2,6 +2,7 @@ import { Kysely, Migrator, sql } from "kysely";
 
 import { ExpoMigrationProvider } from "kysely-expo";
 import { Database } from "../screens/main";
+import { SQLiteTypes } from "kysely-expo/src/types/sqlite-types";
 
 export const getMigrator = (database: Kysely<Database>) =>
   new Migrator({
@@ -20,9 +21,15 @@ export const getMigrator = (database: Kysely<Database>) =>
                 .addColumn("id", "integer", (col) =>
                   col.primaryKey().autoIncrement(),
                 )
-                .addColumn("name", "text", (col) => col.notNull().unique())
-                .addColumn("created_at", "text", (col) => col.notNull())
-                .addColumn("is_active", "text", (col) => col.notNull())
+                .addColumn("name", SQLiteTypes.String, (col) =>
+                  col.notNull().unique(),
+                )
+                .addColumn("created_at", SQLiteTypes.DateTime, (col) =>
+                  col.notNull(),
+                )
+                .addColumn("is_active", SQLiteTypes.Boolean, (col) =>
+                  col.notNull(),
+                )
                 .ifNotExists()
                 .execute();
 
@@ -44,10 +51,18 @@ export const getMigrator = (database: Kysely<Database>) =>
                 .addColumn("brand_id", "integer", (col) =>
                   col.notNull().references("brands.id"),
                 )
-                .addColumn("name", "text", (col) => col.notNull().unique())
-                .addColumn("created_at", "text", (col) => col.notNull())
-                .addColumn("is_active", "text", (col) => col.notNull())
-                .addColumn("meta_json", "text", (col) => col.notNull())
+                .addColumn("name", SQLiteTypes.String, (col) =>
+                  col.notNull().unique(),
+                )
+                .addColumn("created_at", SQLiteTypes.DateTime, (col) =>
+                  col.notNull(),
+                )
+                .addColumn("is_active", SQLiteTypes.Boolean, (col) =>
+                  col.notNull(),
+                )
+                .addColumn("meta_json", SQLiteTypes.Json, (col) =>
+                  col.notNull(),
+                )
                 .execute();
 
               // Seed phones
