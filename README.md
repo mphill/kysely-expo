@@ -129,7 +129,7 @@ To run the example app:
 1. Clone the repo: git clone https://github.com/mphill/kysely-expo.git
 2. `cd example`
 3. `yarn install`
-4. `yarn link`
+4. `yarn setup`
 5. `npx expo start`
 
 ## Todo

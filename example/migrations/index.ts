@@ -1,6 +1,7 @@
 import { Kysely, Migrator, sql } from "kysely";
-import { Database } from "../App";
+
 import { ExpoMigrationProvider } from "kysely-expo";
+import { Database } from "../screens/main";
 
 export const getMigrator = (database: Kysely<Database>) =>
   new Migrator({
