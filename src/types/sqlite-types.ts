@@ -1,11 +1,12 @@
-export const SQLiteTypes: Readonly<
-  Record<string, "text" | "real" | "integer">
-> = {
+export type RealSQLiteTypes = "text" | "real" | "integer" | "any" | "blob";
+
+export const SQLiteTypes: Readonly<Record<string, RealSQLiteTypes>> = {
   Boolean: "text",
   DateTime: "text",
-  Decimal: "real",
+  Number: "real",
   Integer: "integer",
   String: "text",
-  BigInt: "integer",
   Json: "text",
+  Any: "any",
+  Blob: "blob",
 };

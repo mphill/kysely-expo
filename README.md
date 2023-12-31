@@ -5,11 +5,8 @@ Kysely is a type-safe SQL query builder that conveniently generates and executes
 
 
 ## Requirements
-* SDK 50+
-
-# Supported Platforms
-* iOS
-* Android
+* Expo SDK 50+
+* Support iOS & Android
 
 ## Getting Started
 - Install kysely-expo
@@ -19,7 +16,6 @@ Kysely is a type-safe SQL query builder that conveniently generates and executes
 or 
 
 `npm i https://github.com/mphill/kysely-expo`
-
 
 
 ## KyselyProvider

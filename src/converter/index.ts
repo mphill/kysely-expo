@@ -1,6 +1,7 @@
 import { QueryResult } from "kysely";
 
 import { isStringBoolean, isStringIso8601, isStringJson } from "../helpers";
+import { RealSQLiteTypes, SQLiteTypes } from "../types/sqlite-types";
 
 const serialize = (parameters: unknown[]) => {
   return parameters.map((parameter) => {
@@ -19,6 +20,10 @@ const serialize = (parameters: unknown[]) => {
 };
 
 const deserialize = <T>(rows: any[]): QueryResult<T> => {
+  const typeMapping = typeIntrospection(rows[0]);
+
+  console.log("typeMapping", typeMapping);
+
   const processed = rows.map((row) => {
     for (const key in row) {
       if (isStringIso8601(row[key])) {
@@ -40,36 +45,35 @@ const deserialize = <T>(rows: any[]): QueryResult<T> => {
 };
 
 // Reverse SQLite affinity mapping.
-const typeIntrospection = (map: object): any[] => {
-  const typeMapping: string[] = [];
-
-  if (map === null) {
-    return [];
+const typeIntrospection = (map: object): Map<string, RealSQLiteTypes> => {
+  if (map === null || map === undefined) {
+    return new Map();
   }
 
-  console.log("map", map);
+  const typeMapping = new Map<string, RealSQLiteTypes>();
 
   Object.keys(map).forEach((key) => {
     const value = map[key];
 
-    console.log("process key", key, "value", value);
+    // console.log("process key", key, "value", value);
+
     if (typeof value === "string") {
       if (isStringIso8601(value)) {
-        typeMapping.push("date");
+        typeMapping.set(key, SQLiteTypes.DateTime);
       } else if (isStringBoolean(value)) {
-        typeMapping.push("boolean");
+        typeMapping.set(key, SQLiteTypes.Boolean);
       } else if (isStringJson(value)) {
-        typeMapping.push("object");
+        typeMapping.set(key, SQLiteTypes.Json);
       } else {
-        typeMapping.push("string");
+        typeMapping.set(key, SQLiteTypes.String);
       }
     } else {
-      typeMapping.push(typeof value);
+      typeMapping.set(key, SQLiteTypes.Any);
     }
   });
 
   const numKeys = Object.keys(map).length;
-  if (numKeys !== typeMapping.length) {
+  if (numKeys !== typeMapping.size) {
     throw new Error("numKeys != typeMapping.length");
   }
 
