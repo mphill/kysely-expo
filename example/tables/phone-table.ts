@@ -1,4 +1,4 @@
-import { Generated } from "kysely";
+import { ColumnType, Generated } from "kysely";
 
 export interface PhoneTable {
   id: Generated<number>;
@@ -9,5 +9,5 @@ export interface PhoneTable {
     bar: number;
   };
   is_active: boolean;
-  created_at: Generated<Date>;
+  created_at: ColumnType<Date>;
 }

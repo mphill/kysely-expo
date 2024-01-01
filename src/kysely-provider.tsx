@@ -16,7 +16,6 @@ export default function KyselyProvider<T>({
   children,
   database,
   onInit,
-  disableWal,
   disableForeignKeys,
   disableStrictModeCreateTable,
   autoAffinityConversion,
@@ -29,7 +28,6 @@ export default function KyselyProvider<T>({
 
   const dialect = new ExpoDialect({
     disableStrictModeCreateTable,
-    disableWal,
     database,
     debug,
     autoAffinityConversion,
@@ -46,7 +44,7 @@ export default function KyselyProvider<T>({
     }
 
     // if (!disableWal) {
-    //   sql`PRAGMA journal_mode = WAL;`.execute(database);
+    //   sql`PRAGMA journal_mode = 'WAL';`.execute(database);
     // }
 
     if (onInit) {

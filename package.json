@@ -13,10 +13,11 @@
   "main": "src/index.ts",
   "license": "MIT",
   "peerDependencies": {
-    "expo-sqlite": "*",
+    "expo-sqlite": "^13.1.0",
     "kysely": "^0.26.3"
   },
   "dependencies": {
+    "expo-sqlite": "13.1.0",
     "kysely": "^0.26.3"
   },
   "devDependencies": {
