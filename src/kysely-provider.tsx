@@ -1,4 +1,4 @@
-import { Kysely } from "kysely";
+import { Kysely, sql } from "kysely";
 import React, {
   PropsWithChildren,
   createContext,
@@ -16,6 +16,7 @@ export default function KyselyProvider<T>({
   children,
   database,
   onInit,
+  disableWal,
   disableForeignKeys,
   disableStrictModeCreateTable,
   autoAffinityConversion,
@@ -28,23 +29,35 @@ export default function KyselyProvider<T>({
 
   const dialect = new ExpoDialect({
     disableStrictModeCreateTable,
+    disableWal,
     database,
     debug,
     autoAffinityConversion,
     disableForeignKeys,
   });
 
-  if (!kyselyContext) {
+  const startDatabase = async () => {
     const database = new Kysely<T>({
       dialect,
     });
+
+    if (!disableForeignKeys) {
+      sql`PRAGMA foreign_keys = ON;`.execute(database);
+    }
+
+    // if (!disableWal) {
+    //   sql`PRAGMA journal_mode = WAL;`.execute(database);
+    // }
 
     if (onInit) {
       onInit(database);
     }
 
     setKyselyContext(database);
+  };
 
+  if (!kyselyContext) {
+    startDatabase();
     return null;
   }
 
@@ -61,10 +74,3 @@ function useKysely<T>(): Kysely<T> {
 }
 
 export { useKysely };
-
-// dialect
-// .createDriver()
-// .getDatabaseRuntimeVersion()
-// .then((version) => {
-//   console.log("database version", version);
-// }, console.error);

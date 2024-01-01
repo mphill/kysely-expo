@@ -14,7 +14,6 @@ import {
 } from "kysely";
 import * as SQLite from "expo-sqlite";
 import { ExpoDialectConfig } from "./types/expo-dialect-config";
-
 import { deserialize, serialize } from "./converter";
 import { firstElementOrNull } from "./helpers";
 
@@ -108,15 +107,6 @@ class ExpoConnection implements DatabaseConnection {
   constructor(config: ExpoDialectConfig) {
     this.sqlite = SQLite.openDatabase(config.database);
     this.debug = config.debug ?? false;
-
-    if (!config.disableForeignKeys) {
-      this.directQuery("PRAGMA foreign_keys = ON;");
-    }
-
-    if (!config.disableWal) {
-      this.directQuery("PRAGMA journal_mode = WAL;");
-    }
-
     this.config = config;
   }
 

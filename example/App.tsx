@@ -6,7 +6,7 @@ import { getMigrator } from "./migrations";
 export default function App() {
   return (
     <KyselyProvider<Database>
-      database="cars-db2.sqlite"
+      database="phones.db"
       autoAffinityConversion
       debug
       onInit={(database) =>

@@ -21,8 +21,6 @@ const serialize = (parameters: unknown[]) => {
 const deserialize = <T>(rows: any[]): QueryResult<T> => {
   const typeMapping = typeIntrospection(rows[0]);
 
-  console.log("typeMapping", typeMapping);
-
   const processed = rows.map((row) => {
     for (const key in row) {
       const value = row[key];
