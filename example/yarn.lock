@@ -3731,10 +3731,10 @@ expo-splash-screen@~0.26.1:
   dependencies:
     "@expo/prebuild-config" "6.7.2"
 
-expo-sqlite@^11.6.0:
-  version "11.6.0"
-  resolved "https://registry.yarnpkg.com/expo-sqlite/-/expo-sqlite-11.6.0.tgz#054229963e96aa2d3c913c61414c35858ca52939"
-  integrity sha512-R/CmBvY4JYit6e7nJiIplgvg9B5Us95ExmLNxiVsfYjwRqsvKvNlETxX6BpB4FahQleKAZVWOTAzs5o7kst5TA==
+expo-sqlite@~13.2.0:
+  version "13.2.0"
+  resolved "https://registry.yarnpkg.com/expo-sqlite/-/expo-sqlite-13.2.0.tgz#464b8856954cef96a7f52845e510453c54925a8c"
+  integrity sha512-TYpX+a+2oJOxzChug8+TkIob0lipl7rluCRBGXbGKG68kG4Reb6OCruRiQTJTnbGiEgnN4S+B0cT8f4ZXPUxBg==
   dependencies:
     "@expo/websql" "^1.0.1"
 
