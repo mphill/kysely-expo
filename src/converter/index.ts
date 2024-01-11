@@ -2,7 +2,9 @@ import { QueryResult } from "kysely";
 
 import { isStringBoolean, isStringIso8601, isStringJson } from "../helpers";
 
-const serialize = (parameters: unknown[]) => {
+export type SQLiteValue = string | number | null | boolean | Uint8Array;
+
+const serialize = (parameters: unknown[]): SQLiteValue[] => {
   return parameters.map((parameter) => {
     if (parameter instanceof Date) {
       return parameter.toISOString();
@@ -13,12 +15,12 @@ const serialize = (parameters: unknown[]) => {
     } else if (typeof parameter === "boolean") {
       return parameter ? "true" : "false"; // SQLite booleans must be stored a strings.
     } else {
-      return parameter;
+      return parameter as string; // this might be sketch.
     }
   });
 };
 
-const deserialize = <T>(rows: any[]): QueryResult<T> => {
+const deserialize = <T>(rows: any[]): any[] => {
   const typeMapping = typeIntrospection(rows[0]);
 
   const processed = rows.map((row) => {
@@ -49,9 +51,7 @@ const deserialize = <T>(rows: any[]): QueryResult<T> => {
     return row;
   });
 
-  return {
-    rows: processed,
-  };
+  return processed;
 };
 
 type ValidTypes =
@@ -62,7 +62,9 @@ type ValidTypes =
   | "object"
   | "null"
   | "datetime";
+
 // Reverse SQLite affinity mapping.
+// https://www.sqlite.org/datatype3.html#affinity_name_examples
 const typeIntrospection = (map: object): Map<string, ValidTypes> => {
   if (map === null || map === undefined) {
     return new Map();

@@ -12,10 +12,9 @@ import {
   Dialect,
   CompiledQuery,
 } from "kysely";
-import * as SQLite from "expo-sqlite";
+import * as SQLite from "expo-sqlite/next";
 import { ExpoDialectConfig } from "./types/expo-dialect-config";
 import { deserialize, serialize } from "./converter";
-import { firstElementOrNull } from "./helpers";
 
 /**
  * Expo dialect for Kysely.
@@ -87,8 +86,8 @@ export class ExpoDriver implements Driver {
       const res = await this.#connection.directQuery(
         "select sqlite_version() as version;",
       );
-
-      return res.rows[0].version;
+      //@ts-ignore
+      return res[0].version;
     } catch (e) {
       console.error(e);
       return "unknown";
@@ -105,7 +104,7 @@ class ExpoConnection implements DatabaseConnection {
   config: ExpoDialectConfig;
 
   constructor(config: ExpoDialectConfig) {
-    this.sqlite = SQLite.openDatabase(config.database);
+    this.sqlite = SQLite.openDatabaseSync(config.database);
 
     this.debug = config.debug ?? false;
     this.config = config;
@@ -113,18 +112,6 @@ class ExpoConnection implements DatabaseConnection {
 
   async closeConnection(): Promise<void> {
     return this.sqlite.closeAsync();
-  }
-
-  isError(
-    rs: SQLite.ResultSetError | SQLite.ResultSet,
-  ): rs is SQLite.ResultSetError {
-    return "error" in rs;
-  }
-
-  isResult(
-    rs: SQLite.ResultSetError | SQLite.ResultSet,
-  ): rs is SQLite.ResultSet {
-    return "rows" in rs;
   }
 
   async executeQuery<R>(compiledQuery: CompiledQuery): Promise<QueryResult<R>> {
@@ -150,47 +137,30 @@ class ExpoConnection implements DatabaseConnection {
       console.debug(`${query.kind}${readonly ? " (readonly)" : ""}: ${sql}`);
     }
 
-    const res = firstElementOrNull(
-      await this.sqlite.execAsync(
-        [{ sql: sql, args: transformedParameters }],
-        readonly,
-      ),
-    );
+    if (readonly) {
+      const res = await this.sqlite.getAllAsync<R>(sql, transformedParameters);
 
-    if (this.isError(res)) {
-      throw new Error(res.error.message);
-    } else if (this.isResult(res)) {
-      if (readonly) {
-        return this.config.autoAffinityConversion
-          ? deserialize(res.rows)
-          : (res as unknown as QueryResult<R>);
-      } else {
-        const queryResult = {
-          numUpdatedOrDeletedRows: BigInt(res.rowsAffected),
-          numAffectedRows: BigInt(res.rowsAffected),
-          insertId: res.insertId ? BigInt(res.insertId) : undefined,
-          rows: res.rows as unknown as R[],
-        } satisfies QueryResult<R>;
-
-        if (this.debug) console.log("queryResult", queryResult);
-
-        return queryResult;
-      }
+      return {
+        rows: this.config.autoAffinityConversion ? deserialize(res) : res,
+      } satisfies QueryResult<R>;
     } else {
-      throw new Error("Unknown result type");
+      const res = await this.sqlite.runAsync(sql, transformedParameters);
+
+      const queryResult = {
+        numUpdatedOrDeletedRows: BigInt(res.changes),
+        numAffectedRows: BigInt(res.changes),
+        insertId: BigInt(res.lastInsertRowId),
+        rows: [],
+      } satisfies QueryResult<R>;
+
+      if (this.debug) console.log("queryResult", queryResult);
+
+      return queryResult;
     }
   }
 
-  async directQuery(query: string): Promise<SQLite.ResultSet> {
-    const res = firstElementOrNull(
-      await this.sqlite.execAsync([{ sql: query, args: [] }], false),
-    );
-
-    if (this.isError(res)) {
-      throw new Error(res.error.message);
-    }
-
-    return res as SQLite.ResultSet;
+  async directQuery<T>(query: string): Promise<Array<T>> {
+    return await this.sqlite.getAllAsync<T>(query, []);
   }
 
   streamQuery<R>(

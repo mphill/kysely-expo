@@ -7,6 +7,7 @@ import { PhoneTable } from "../tables/phone-table";
 
 import runner from "../tests";
 import { getBrands } from "../tests/repo";
+import { sql } from "kysely";
 
 export interface Database {
   brands: BrandTable;
@@ -21,18 +22,22 @@ export default function MainScreen() {
     Math.floor(Math.random() * (max - min + 1) + min);
 
   const handleInsert = async () => {
+    const values = {
+      name: "iPhone " + getRandomNumberBetween(3, 8),
+      brand_id: 1,
+      created_at: new Date(),
+      is_active: false,
+      meta_json: {
+        foo: "bar",
+        bar: 1,
+      },
+    };
+
+    console.log(values);
+
     database
       .insertInto("phones")
-      .values({
-        name: "iPhone " + getRandomNumberBetween(3, 8),
-        brand_id: 1,
-        created_at: new Date(),
-        is_active: false,
-        meta_json: {
-          foo: "bar",
-          bar: 1,
-        },
-      })
+      .values(values)
       .execute()
       .then((result) => {
         setConsoleText(
@@ -47,7 +52,7 @@ export default function MainScreen() {
       .innerJoin("brands", "phones.brand_id", "brands.id")
       .select([
         "phones.meta_json",
-        "brands.name as brand",
+        sql<string>`upper(brands.name)`.as("brand"),
         "phones.name",
         "phones.created_at",
         "phones.is_active",
@@ -55,7 +60,7 @@ export default function MainScreen() {
       .orderBy("phones.name", "asc")
       .execute();
 
-    console.log(phones);
+    console.log(phones.forEach((phone) => console.log(phone)));
 
     const text = phones
       .map((phone) => `${phone.name} ${phone.brand}`)
