@@ -7,10 +7,11 @@
     "build": "tsc",
     "lint": "eslint ."
   },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
     "lib/"
   ],
-  "main": "src/index.ts",
   "license": "MIT",
   "peerDependencies": {
     "expo-sqlite": "^13.1.0",

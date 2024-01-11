@@ -151,7 +151,7 @@ To run the example app:
 4. `yarn setup`
 5. `npx expo start`
 
-## Todo
+## Roadmap
 
 - [ ] Transaction support
 - [ ] Blob support (file adapter)

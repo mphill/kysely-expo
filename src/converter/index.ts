@@ -73,6 +73,7 @@ const typeIntrospection = (map: object): Map<string, ValidTypes> => {
   const typeMapping = new Map<string, ValidTypes>();
 
   Object.keys(map).forEach((key) => {
+    //@ts-ignore - the type must be discovered dynamically.
     const value = map[key];
 
     if (typeof value === "string") {
