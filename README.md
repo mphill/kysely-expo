@@ -141,7 +141,7 @@ const result = await migrator.migrateToLatest();
 
 ## Sample App
 
-A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and perform basic CRUD operations.
+A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and perform basic CRUD operations.  React Native applications do not support `npm link` so `yarn setup` will copy the files locally.
 
 To run the example app:
 
