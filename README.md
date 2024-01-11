@@ -146,10 +146,11 @@ A sample Expo app is included in the `example` folder.  It is a simple app that 
 To run the example app:
 
 1. Clone the repo: git clone https://github.com/mphill/kysely-expo.git
-2. `cd example`
-3. `yarn install`
-4. `yarn setup`
-5. `npx expo start`
+2. `yarn build`
+3. `cd example`
+4. `yarn install`
+5. `yarn setup`
+6. `npx expo start`
 
 ## Roadmap
 
