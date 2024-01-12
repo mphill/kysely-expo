@@ -1,8 +1,7 @@
 import { Kysely, Migrator, sql } from "kysely";
 
-import { ExpoMigrationProvider } from "kysely-expo";
+import { ExpoMigrationProvider, SQLiteTypes } from "kysely-expo";
 import { Database } from "../screens/main";
-import { SQLiteTypes } from "kysely-expo/src/types/sqlite-types";
 
 export const getMigrator = (database: Kysely<Database>) =>
   new Migrator({

@@ -6,7 +6,6 @@ import { BrandTable } from "../tables/brand-table";
 import { PhoneTable } from "../tables/phone-table";
 
 import runner from "../tests";
-import { getBrands } from "../tests/repo";
 import { sql } from "kysely";
 
 export interface Database {
