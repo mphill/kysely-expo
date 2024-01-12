@@ -9,11 +9,11 @@ Support for [Kysely](https://github.com/kysely-org/kysely) with [Expo SQLite (Ne
 ## Getting Started
 - Install kysely-expo
 
-`yarn add https://github.com/mphill/kysely-expo`
+`yarn add kysely-expo`
 
 or 
 
-`npm i https://github.com/mphill/kysely-expo`
+`npm i kysely-expo`
 
 
 ## KyselyProvider
@@ -43,10 +43,10 @@ SQLite has support for four basic types: string, number (integer), real (decimal
 
 | Typescript   | SQLite                       | Kysely                                     |
 | ------------ | ---------------------------- | ------------------------------------------ |
-| `boolean`    | `TEXT => "true" | "false"`   | `SQLiteTypes.Boolean`                      |
+| `boolean`    | `TEXT` "true" \| "false"   | `SQLiteTypes.Boolean`                      |
 | `string`     | `TEXT`                       | `SQLiteTypes.String`                       |
-| `Date`       | `TEXT` (YYYY-MM-DD HH:MM:SS) | `SQLiteTypes.DateTime`                     |
-| `number`     | `INTEGER | REAL`             | `SQLiteTypes.Integer | SQLiteTypes.Number` |
+| `Date`       | `TEXT` ISO-8601 (YYYY-MM-DD HH:MM:SS) | `SQLiteTypes.DateTime`                     |
+| `number`     | `INTEGER \| REAL`             | `SQLiteTypes.Integer \| SQLiteTypes.Number` |
 | `any`        | `any`                        | `SQLiteTypes.Any`                          |
 | `Uint8Array` | `BLOB`                       | `SQLiteTypes.Blob`                         |
 | `object`     | `TEXT`                       | `SQLiteTypes.Json`                         |
