@@ -117,7 +117,7 @@ class ExpoConnection implements DatabaseConnection {
   async executeQuery<R>(compiledQuery: CompiledQuery): Promise<QueryResult<R>> {
     let { sql, parameters, query } = compiledQuery;
 
-    // Kysely uses varchar(255) as the default string type which not supported by STRICT mode.
+    // Kysely uses varchar(255) as the default string type for migrations which not supported by STRICT mode.
     if (
       query.kind === "CreateTableNode" &&
       !sql.includes("kysely_migration") &&

@@ -56,5 +56,5 @@ jspm_packages/
 .yarn/install-state.gz
 .pnp.*
 .expo
-lib
+dist
 .DS_Store

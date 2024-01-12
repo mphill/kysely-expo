@@ -41,17 +41,21 @@ For more information, see https://www.sqlite.org/stricttables.html
 
 SQLite has support for four basic types: string, number (integer), real (decimal), and blob (binary).  SQLite doesn't support `Date` or `boolean`, it's a string or integer for dates and a 0 or 1 for boolean (typically).  It would be annoying to have to convert all your dates to strings and booleans to 0 or 1 and vice versa.
 
-| Typescript   | SQLite                       | Kysely                                     |
+| Typescript   | SQLite                       | Kysely Expo Type                                    |
 | ------------ | ---------------------------- | ------------------------------------------ |
 | `boolean`    | `TEXT` "true" \| "false"   | `SQLiteTypes.Boolean`                      |
 | `string`     | `TEXT`                       | `SQLiteTypes.String`                       |
 | `Date`       | `TEXT` ISO-8601 (YYYY-MM-DD HH:MM:SS) | `SQLiteTypes.DateTime`                     |
-| `number`     | `INTEGER \| REAL`             | `SQLiteTypes.Integer \| SQLiteTypes.Number` |
+| `number`     | `INTEGER` or `REAL`        | `SQLiteTypes.Integer` or `SQLiteTypes.Number` |
 | `any`        | `any`                        | `SQLiteTypes.Any`                          |
 | `Uint8Array` | `BLOB`                       | `SQLiteTypes.Blob`                         |
 | `object`     | `TEXT`                       | `SQLiteTypes.Json`                         |
 
 Setting `autoAffinityConversion` to `true` will automatically attempt to manage these conversions for you. 
+
+### File Storage Support
+
+Using the `blob` type is it possible to store binary data in your SQLite instance. 
 
 
 ## Usage Example
@@ -155,4 +159,3 @@ To run the example app:
 ## Roadmap
 
 - [ ] Transaction support
-- [ ] Blob support (file adapter)

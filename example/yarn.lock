@@ -3384,7 +3384,7 @@ expo-constants@~15.4.0:
   dependencies:
     "@expo/config" "~8.5.0"
 
-expo-file-system@~16.0.0, expo-file-system@~16.0.2, expo-file-system@~16.0.3:
+expo-file-system@~16.0.0, expo-file-system@~16.0.3:
   version "16.0.3"
   resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-16.0.3.tgz#d7f45b77b6e085a106edb5178c3cbef884f42156"
   integrity sha512-F1RGwrkz70sIqdTswhsawFRSCwBgrQO0BEX8IxzWYRiucL2MnazeZ6tUx1vSQunuw49JexMcEozEccb0YEDzIw==
@@ -3395,6 +3395,18 @@ expo-font@~11.10.1:
   integrity sha512-eEi/EoJWFUy5CHJudfUtS8VKQdTW04f+OaKEBYj7eLUwW8bccRkA1ADtxyxLIkKdWlt2oZuVezvcgab5pYbCtQ==
   dependencies:
     fontfaceobserver "^2.1.0"
+
+expo-image-loader@~4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/expo-image-loader/-/expo-image-loader-4.6.0.tgz#ca7d4fdf53125bff2091d3a2c34a3155f10df147"
+  integrity sha512-RHQTDak7/KyhWUxikn2yNzXL7i2cs16cMp6gEAgkHOjVhoCJQoOJ0Ljrt4cKQ3IowxgCuOrAgSUzGkqs7omj8Q==
+
+expo-image-picker@~14.7.1:
+  version "14.7.1"
+  resolved "https://registry.yarnpkg.com/expo-image-picker/-/expo-image-picker-14.7.1.tgz#c51faff3a3fbffc6ae93d7155370beb1a2d2baea"
+  integrity sha512-ILQVOJgI3aEzrDmCFGDPtpAepYkn8mot8G7vfQ51BfFdQbzL6N3Wm1fS/ofdWlAZJl/qT2DwaIh5xYmf3SyGZA==
+  dependencies:
+    expo-image-loader "~4.6.0"
 
 expo-keep-awake@~12.8.1:
   version "12.8.1"

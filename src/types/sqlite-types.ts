@@ -2,7 +2,7 @@ import { RawBuilder, sql } from "kysely";
 
 export type RealSQLiteTypes = "text" | "real" | "integer" | "any" | "blob";
 
-export const SQLiteTypes: Readonly<
+export const SQLiteType: Readonly<
   Record<
     | "Boolean"
     | "DateTime"

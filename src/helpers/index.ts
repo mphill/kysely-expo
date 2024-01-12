@@ -15,4 +15,8 @@ function isStringBoolean(value: string): boolean {
   return value === "true" || value === "false";
 }
 
-export { isStringIso8601, isStringJson, isStringBoolean };
+function isUint8Array(value: unknown): value is Uint8Array {
+  return value instanceof Uint8Array;
+}
+
+export { isStringIso8601, isStringJson, isStringBoolean, isUint8Array };

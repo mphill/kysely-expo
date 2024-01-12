@@ -1,6 +1,9 @@
-import { QueryResult } from "kysely";
-
-import { isStringBoolean, isStringIso8601, isStringJson } from "../helpers";
+import {
+  isStringBoolean,
+  isStringIso8601,
+  isStringJson,
+  isUint8Array,
+} from "../helpers";
 
 export type SQLiteValue = string | number | null | boolean | Uint8Array;
 
@@ -8,13 +11,18 @@ const serialize = (parameters: unknown[]): SQLiteValue[] => {
   return parameters.map((parameter) => {
     if (parameter instanceof Date) {
       return parameter.toISOString();
+    } else if (isUint8Array(parameter)) {
+      return parameter as Uint8Array;
     } else if (parameter === null || parameter === undefined) {
       return null;
     } else if (typeof parameter === "object") {
       return JSON.stringify(parameter);
     } else if (typeof parameter === "boolean") {
       return parameter ? "true" : "false"; // SQLite booleans must be stored a strings.
+    } else if (typeof parameter === "string") {
+      return parameter as string;
     } else {
+      console.warn("unknown type", typeof parameter);
       return parameter as string; // this might be sketch.
     }
   });
@@ -45,6 +53,10 @@ const deserialize = <T>(rows: any[]): any[] => {
         row[key] = Number(value);
       } else if (type === "string") {
         row[key] = String(value);
+      } else if (type === "blob") {
+        row[key] = value as Uint8Array;
+      } else {
+        throw new Error("unknown type: " + type);
       }
     }
 
@@ -61,6 +73,7 @@ type ValidTypes =
   | "boolean"
   | "object"
   | "null"
+  | "blob"
   | "datetime";
 
 // Reverse SQLite affinity mapping.
@@ -90,12 +103,14 @@ const typeIntrospection = (map: object): Map<string, ValidTypes> => {
       typeMapping.set(key, "number");
     } else if (typeof value === "boolean") {
       typeMapping.set(key, "boolean");
+    } else if (isUint8Array(value)) {
+      typeMapping.set(key, "blob");
     } else if (typeof value === "object") {
       typeMapping.set(key, "object");
     } else if (typeof value === "undefined" || value === null) {
       typeMapping.set(key, "null");
     } else {
-      throw new Error("unknown type");
+      throw new Error("Unknown type:" + typeof value);
     }
   });
 

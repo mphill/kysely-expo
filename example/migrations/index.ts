@@ -1,6 +1,6 @@
 import { Kysely, Migrator, sql } from "kysely";
 
-import { ExpoMigrationProvider, SQLiteTypes } from "kysely-expo";
+import { ExpoMigrationProvider, SQLiteType } from "kysely-expo";
 import { Database } from "../screens/main";
 
 export const getMigrator = (database: Kysely<Database>) =>
@@ -20,13 +20,13 @@ export const getMigrator = (database: Kysely<Database>) =>
                 .addColumn("id", "integer", (col) =>
                   col.primaryKey().autoIncrement(),
                 )
-                .addColumn("name", SQLiteTypes.String, (col) =>
+                .addColumn("name", SQLiteType.String, (col) =>
                   col.notNull().unique(),
                 )
-                .addColumn("created_at", SQLiteTypes.DateTime, (col) =>
+                .addColumn("created_at", SQLiteType.DateTime, (col) =>
                   col.notNull(),
                 )
-                .addColumn("is_active", SQLiteTypes.Boolean, (col) =>
+                .addColumn("is_active", SQLiteType.Boolean, (col) =>
                   col.notNull(),
                 )
                 .ifNotExists()
@@ -50,18 +50,16 @@ export const getMigrator = (database: Kysely<Database>) =>
                 .addColumn("brand_id", "integer", (col) =>
                   col.notNull().references("brands.id"),
                 )
-                .addColumn("name", SQLiteTypes.String, (col) =>
+                .addColumn("name", SQLiteType.String, (col) =>
                   col.notNull().unique(),
                 )
-                .addColumn("created_at", SQLiteTypes.DateTime, (col) =>
+                .addColumn("created_at", SQLiteType.DateTime, (col) =>
                   col.notNull(),
                 )
-                .addColumn("is_active", SQLiteTypes.Boolean, (col) =>
+                .addColumn("is_active", SQLiteType.Boolean, (col) =>
                   col.notNull(),
                 )
-                .addColumn("meta_json", SQLiteTypes.Json, (col) =>
-                  col.notNull(),
-                )
+                .addColumn("meta_json", SQLiteType.Json, (col) => col.notNull())
                 .execute();
 
               // Seed phones
@@ -139,6 +137,23 @@ export const getMigrator = (database: Kysely<Database>) =>
 
               throw error;
             }
+          },
+        },
+        "2": {
+          up: async (db: Kysely<Database>) => {
+            console.log("running migration 2");
+
+            await db.schema
+              .createTable("files")
+              .addColumn("id", SQLiteType.Integer, (col) =>
+                col.primaryKey().notNull().autoIncrement(),
+              )
+              .addColumn("name", SQLiteType.String, (col) =>
+                col.notNull().unique(),
+              )
+              .addColumn("mime_type", SQLiteType.String, (col) => col.notNull())
+              .addColumn("contents", SQLiteType.Blob, (col) => col.notNull())
+              .execute();
           },
         },
       },

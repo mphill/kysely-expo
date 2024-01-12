@@ -7,10 +7,16 @@ import { PhoneTable } from "../tables/phone-table";
 
 import runner from "../tests";
 import { sql } from "kysely";
+import { FileTable } from "../tables/file-table";
+
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+import { base64ToBlob } from "../utils";
 
 export interface Database {
   brands: BrandTable;
   phones: PhoneTable;
+  files: FileTable;
 }
 
 export default function MainScreen() {
@@ -31,8 +37,6 @@ export default function MainScreen() {
         bar: 1,
       },
     };
-
-    console.log(values);
 
     database
       .insertInto("phones")
@@ -106,6 +110,48 @@ export default function MainScreen() {
     );
   };
 
+  const handleSelectFiles = async () => {
+    const files = await database
+      .selectFrom("files")
+      .select(["contents", "mime_type", "name", "id"])
+      .execute();
+
+    console.log(files);
+  };
+
+  const handlePickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    const asset = result.assets[0];
+
+    console.log("Reading path", asset.uri);
+
+    const binary = base64ToBlob(
+      await FileSystem.readAsStringAsync(asset.uri, {
+        encoding: "base64",
+      }),
+    );
+
+    await database
+      .insertInto("files")
+      .values({
+        contents: binary,
+        mime_type: asset.mimeType ?? "unknown",
+        name: asset.fileName ?? "unknown.ext",
+      })
+      .execute();
+
+    // if (!result.canceled) {
+    //   setImage(result.assets[0].uri);
+    // }
+  };
+
   return (
     <View style={{ ...styles.container, paddingTop: 50 }}>
       <View style={{ flex: 1 }}>
@@ -138,6 +184,8 @@ export default function MainScreen() {
         <Button title="Select" onPress={handleSelect} />
         <Button title="Delete" onPress={handleDelete} />
         <Button title="Update" onPress={handleUpdate} />
+        <Button title="Store File" onPress={handlePickImage} />
+        <Button title="Select Files" onPress={handleSelectFiles} />
         <Button title="Test" onPress={handleTest} />
       </View>
       <StatusBar style="auto" />
