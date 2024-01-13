@@ -11,6 +11,8 @@ const serialize = (parameters: unknown[]): SQLiteValue[] => {
   return parameters.map((parameter) => {
     if (parameter instanceof Date) {
       return parameter.toISOString();
+    } else if (typeof parameter === "number") {
+      return parameter as number;
     } else if (isUint8Array(parameter)) {
       return parameter as Uint8Array;
     } else if (parameter === null || parameter === undefined) {

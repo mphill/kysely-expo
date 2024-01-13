@@ -54,6 +54,7 @@ export default function MainScreen() {
       .selectFrom("phones")
       .innerJoin("brands", "phones.brand_id", "brands.id")
       .select([
+        "phones.id",
         "phones.meta_json",
         sql<string>`upper(brands.name)`.as("brand"),
         "phones.name",
@@ -63,13 +64,32 @@ export default function MainScreen() {
       .orderBy("phones.name", "asc")
       .execute();
 
-    console.log(phones.forEach((phone) => console.log(phone)));
+    console.log(phones);
 
     const text = phones
       .map((phone) => `${phone.name} ${phone.brand}`)
       .join("\n");
 
     setConsoleText(text);
+  };
+
+  const handleSelectStream = async () => {
+    const stream = await database
+      .selectFrom("phones")
+      .innerJoin("brands", "phones.brand_id", "brands.id")
+      .select([
+        "phones.meta_json",
+        sql<string>`upper(brands.name)`.as("brand"),
+        "phones.name",
+        "phones.created_at",
+        "phones.is_active",
+      ])
+      .orderBy("phones.name", "asc")
+      .stream();
+
+    for await (const phone of stream) {
+      console.log(phone);
+    }
   };
 
   const handleDelete = async () => {
@@ -186,6 +206,7 @@ export default function MainScreen() {
         <Button title="Update" onPress={handleUpdate} />
         <Button title="Store File" onPress={handlePickImage} />
         <Button title="Select Files" onPress={handleSelectFiles} />
+        <Button title="Select Stream" onPress={handleSelectStream} />
         <Button title="Test" onPress={handleTest} />
       </View>
       <StatusBar style="auto" />

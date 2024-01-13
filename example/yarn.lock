@@ -3439,7 +3439,7 @@ expo-splash-screen@~0.26.1:
   dependencies:
     "@expo/prebuild-config" "6.7.3"
 
-expo-sqlite@~13.2.0:
+expo-sqlite@^13.2.1:
   version "13.2.1"
   resolved "https://registry.yarnpkg.com/expo-sqlite/-/expo-sqlite-13.2.1.tgz#5425d195a45349d1b72f83815197f2ce46baeb22"
   integrity sha512-wYPCXygwRIDlU7qkqVCW78ExVk5lBRipZwfVyHpjNWPldt3U2ijvHvRtu+24eL7Xij1HS7R3yAuSLu4ZkPc4MA==

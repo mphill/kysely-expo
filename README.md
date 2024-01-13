@@ -43,13 +43,13 @@ SQLite has support for four basic types: string, number (integer), real (decimal
 
 | Typescript   | SQLite                       | Kysely Expo Type                                    |
 | ------------ | ---------------------------- | ------------------------------------------ |
-| `boolean`    | `TEXT` "true" \| "false"   | `SQLiteTypes.Boolean`                      |
-| `string`     | `TEXT`                       | `SQLiteTypes.String`                       |
-| `Date`       | `TEXT` ISO-8601 (YYYY-MM-DD HH:MM:SS) | `SQLiteTypes.DateTime`                     |
-| `number`     | `INTEGER` or `REAL`        | `SQLiteTypes.Integer` or `SQLiteTypes.Number` |
-| `any`        | `any`                        | `SQLiteTypes.Any`                          |
-| `Uint8Array` | `BLOB`                       | `SQLiteTypes.Blob`                         |
-| `object`     | `TEXT`                       | `SQLiteTypes.Json`                         |
+| `boolean`    | `TEXT` "true" \| "false"   | `SQLiteType.Boolean`                      |
+| `string`     | `TEXT`                       | `SQLiteType.String`                       |
+| `Date`       | `TEXT` ISO-8601 (YYYY-MM-DD HH:MM:SS) | `SQLiteType.DateTime`                     |
+| `number`     | `INTEGER` or `REAL`        | `SQLiteType.Integer` or `SQLiteType.Number` |
+| `any`        | `any`                        | `SQLiteType.Any`                          |
+| `Uint8Array` | `BLOB`                       | `SQLiteType.Blob`                         |
+| `object`     | `TEXT`                       | `SQLiteType.Json`                         |
 
 Setting `autoAffinityConversion` to `true` will automatically attempt to manage these conversions for you. 
 
