@@ -9,23 +9,22 @@ export type SQLiteValue = string | number | null | boolean | Uint8Array;
 
 const serialize = (parameters: unknown[]): SQLiteValue[] => {
   return parameters.map((parameter) => {
-    if (parameter instanceof Date) {
+    if (typeof parameter === "string") {
+      return parameter.toString();
+    } else if (parameter instanceof Date) {
       return parameter.toISOString();
     } else if (typeof parameter === "number") {
-      return parameter as number;
+      return parameter;
     } else if (isUint8Array(parameter)) {
-      return parameter as Uint8Array;
+      return parameter;
     } else if (parameter === null || parameter === undefined) {
       return null;
     } else if (typeof parameter === "object") {
       return JSON.stringify(parameter);
     } else if (typeof parameter === "boolean") {
       return parameter ? "true" : "false"; // SQLite booleans must be stored a strings.
-    } else if (typeof parameter === "string") {
-      return parameter as string;
     } else {
-      console.warn("unknown type", typeof parameter);
-      return parameter as string; // this might be sketch.
+      throw new Error("Unknown type: " + typeof parameter);
     }
   });
 };
@@ -47,10 +46,10 @@ const deserialize = <T>(rows: any[]): any[] => {
         row[key] = new Date(value);
       } else if (type === "boolean") {
         row[key] = value === "true" ? true : false;
-      } else if (type === "object") {
-        row[key] = JSON.parse(value);
       } else if (type === "null") {
         row[key] = null;
+      } else if (type === "object") {
+        row[key] = JSON.parse(value);
       } else if (type === "number") {
         row[key] = Number(value);
       } else if (type === "string") {

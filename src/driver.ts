@@ -11,6 +11,7 @@ import {
   QueryResult,
   Dialect,
   CompiledQuery,
+  SelectQueryNode,
 } from "kysely";
 import * as SQLite from "expo-sqlite/next";
 import { ExpoDialectConfig } from "./types/expo-dialect-config";
@@ -140,8 +141,12 @@ class ExpoConnection implements DatabaseConnection {
     if (readonly) {
       const res = await this.sqlite.getAllAsync<R>(sql, transformedParameters);
 
+      const skip =
+        query.kind === "SelectQueryNode" && sql.includes("pragma_table_info"); // @todo: fix this hack - find a better way
+
       return {
-        rows: this.config.autoAffinityConversion ? deserialize(res) : res,
+        rows:
+          this.config.autoAffinityConversion && !skip ? deserialize(res) : res,
       } satisfies QueryResult<R>;
     } else {
       const res = await this.sqlite.runAsync(sql, transformedParameters);
