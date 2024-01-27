@@ -158,4 +158,4 @@ To run the example app:
 
 ## Roadmap
 
-- [ ] Transaction support
+- [ ] Streaming support

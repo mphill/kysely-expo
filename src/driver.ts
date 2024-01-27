@@ -174,8 +174,6 @@ class ExpoConnection implements DatabaseConnection {
   ): AsyncIterableIterator<QueryResult<R>> {
     const { sql, parameters, query } = compiledQuery;
 
-    console.log("streamQuery", sql, parameters, query);
-
     throw new Error(
       "Expo SQLite driver does not support iterate on prepared statements",
     );

@@ -1,10 +1,11 @@
 {
   "name": "kysely-expo",
-  "version": "0.1.0-alpha.5",
+  "version": "1.0.0-beta.1",
   "description": "Expo support for Kysely",
   "author": "mphill",
   "scripts": {
     "build": "tsc",
+    "publish": "tsc && npm publish",
     "lint": "eslint ."
   },
   "main": "dist/index.js",
@@ -18,14 +19,14 @@
     "kysely": "^0.27.0"
   },
   "dependencies": {
-    "expo-sqlite": "^13.2.1",
+    "expo-sqlite": "^13.2.2",
     "kysely": "^0.27.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.46",
+    "@types/react": "^18.2.48",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-universe": "^12.0.0",
-    "prettier": "^3.1.1"
+    "prettier": "^3.2.4"
   }
 }

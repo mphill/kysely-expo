@@ -172,6 +172,44 @@ export default function MainScreen() {
     // }
   };
 
+  const handleTransaction = async () => {
+    // remove all phones with the name "iPhone Transaction"
+    await database
+      .deleteFrom("phones")
+      .where("name", "=", "iPhone Transaction")
+      .execute();
+
+    await database.transaction().execute(async (trx) => {
+      await trx
+        .insertInto("phones")
+        .values({
+          name: "iPhone Transaction",
+          brand_id: 1,
+          created_at: new Date(),
+          is_active: false,
+          meta_json: {
+            foo: "bar",
+            bar: 1,
+          },
+        })
+        .execute();
+
+      await trx
+        .insertInto("phones")
+        .values({
+          name: "iPhone Transaction",
+          brand_id: 1,
+          created_at: new Date(),
+          is_active: false,
+          meta_json: {
+            foo: "bar",
+            bar: 1,
+          },
+        })
+        .execute();
+    });
+  };
+
   return (
     <View style={{ ...styles.container, paddingTop: 50 }}>
       <View style={{ flex: 1 }}>
@@ -204,6 +242,7 @@ export default function MainScreen() {
         <Button title="Select" onPress={handleSelect} />
         <Button title="Delete" onPress={handleDelete} />
         <Button title="Update" onPress={handleUpdate} />
+        <Button title="Transaction" onPress={handleTransaction} />
         <Button title="Store File" onPress={handlePickImage} />
         <Button title="Select Files" onPress={handleSelectFiles} />
         <Button title="Select Stream" onPress={handleSelectStream} />
