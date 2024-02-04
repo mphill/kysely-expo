@@ -156,6 +156,21 @@ export const getMigrator = (database: Kysely<Database>) =>
               .execute();
           },
         },
+        "3": {
+          up: async (db: Kysely<Database>) => {
+            console.log("running migration 3");
+
+            await db.schema
+              .createTable("type_tests")
+              .addColumn("id", SQLiteType.Integer, (col) =>
+                col.primaryKey().notNull().autoIncrement(),
+              )
+              .addColumn("array_type", SQLiteType.Json, (col) => col.notNull())
+              .addColumn("record_type", SQLiteType.Json, (col) => col.notNull())
+              .addColumn("object_type", SQLiteType.Json, (col) => col.notNull())
+              .execute();
+          },
+        },
       },
     }),
   });

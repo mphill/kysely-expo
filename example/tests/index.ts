@@ -1,5 +1,5 @@
-import { Kysely } from "kysely";
-import { Database } from "../App";
+import { Kysely, sql } from "kysely";
+import { Database } from "../screens/main";
 
 type TestCase = {
   description: string;
@@ -90,6 +90,83 @@ const runner = async (database: Kysely<Database>) => {
   } catch (e) {
     results.push({
       description: "Verify null constraint is enforced",
+      passed: true,
+    });
+  }
+
+  // Remove all records from type_tests
+  await database.deleteFrom("type_tests").execute();
+
+  // get the row count from type_tests
+
+  const rowCount = await database
+    .selectFrom("type_tests")
+    .select([database.fn.countAll().as("count")])
+    .executeTakeFirst();
+
+  if (rowCount.count !== 0) {
+    results.push({
+      description: "Verify type_tests is empty",
+      passed: false,
+    });
+  } else {
+    results.push({
+      description: "Verify type_tests is empty",
+      passed: true,
+    });
+  }
+
+  const typeResult = await database
+    .insertInto("type_tests")
+    .values({
+      array_type: ["a", "b", "c"],
+      record_type: { a: "a", b: "b" },
+      object_type: { name: "name", age: 20 },
+    })
+    .executeTakeFirst();
+
+  // select 1 row from type_tests
+  const typeTests = await database
+    .selectFrom("type_tests")
+    .select(["array_type", "record_type", "object_type", "id"])
+    .where("id", "=", Number(typeResult.insertId))
+    .executeTakeFirstOrThrow();
+
+  if (typeTests.array_type.length !== 3) {
+    results.push({
+      description: "Verify array type is stored correctly",
+      passed: false,
+    });
+  } else {
+    results.push({
+      description: "Verify array type is stored correctly",
+      passed: true,
+    });
+  }
+
+  if (typeTests.record_type.a !== "a" || typeTests.record_type.b !== "b") {
+    results.push({
+      description: "Verify record type is stored correctly",
+      passed: false,
+    });
+  } else {
+    results.push({
+      description: "Verify record type is stored correctly",
+      passed: true,
+    });
+  }
+
+  if (
+    typeTests.object_type.name !== "name" ||
+    typeTests.object_type.age !== 20
+  ) {
+    results.push({
+      description: "Verify object type is stored correctly",
+      passed: false,
+    });
+  } else {
+    results.push({
+      description: "Verify object type is stored correctly",
       passed: true,
     });
   }

@@ -12,8 +12,10 @@ import { FileTable } from "../tables/file-table";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { base64ToBlob } from "../utils";
+import { TypeTestsTable } from "../tables/type-tests-tables";
 
 export interface Database {
+  type_tests: TypeTestsTable;
   brands: BrandTable;
   phones: PhoneTable;
   files: FileTable;
