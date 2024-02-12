@@ -37,25 +37,54 @@ Supported types in STRICT mode:
 
 For more information, see https://www.sqlite.org/stricttables.html
 
-### Auto Affinity Converter (Experimental)
+## SQLite Type Converters
 
-SQLite has support for four basic types: string, number (integer), real (decimal), and blob (binary).  SQLite doesn't support `Date` or `boolean`, it's a string or integer for dates and a 0 or 1 for boolean (typically).  It would be annoying to have to convert all your dates to strings and booleans to 0 or 1 and vice versa.
+SQLite has support for four basic types: `string`, `number` (integer), `real` (decimal), and `blob` (binary).  SQLite doesn't support `Date`, `boolean`, `object`, etc... 
 
-| Typescript   | SQLite                       | Kysely Expo Type                                    |
-| ------------ | ---------------------------- | ------------------------------------------ |
-| `boolean`    | `TEXT` "true" \| "false"   | `SQLiteType.Boolean`                      |
-| `string`     | `TEXT`                       | `SQLiteType.String`                       |
-| `Date`       | `TEXT` ISO-8601 (YYYY-MM-DD HH:MM:SS) | `SQLiteType.DateTime`                     |
-| `number`     | `INTEGER` or `REAL`        | `SQLiteType.Integer` or `SQLiteType.Number` |
-| `any`        | `any`                        | `SQLiteType.Any`                          |
-| `Uint8Array` | `BLOB`                       | `SQLiteType.Blob`                         |
-| `object`     | `TEXT`                       | `SQLiteType.Json`                         |
+Using a `boolean` as an example, SQLite will store it as a `1` / 0 or `"true"` / "false".  When you read data out, you will see a number or string - not a boolean.  
+
+Kysely Expo offers two converters to help make this conversion transparent.
+
+### Auto Affinity Conversion (Experimental)
 
 Setting `autoAffinityConversion` to `true` will automatically attempt to manage these conversions for you. 
 
-### File Storage Support
+Limitations:** Booleans are stored as `"true"` or `"false"`.  If you control all your inputs and prohibit `"true"` or "false" for string fields, this is generally completely safe.
 
-Using the `blob` type is it possible to store binary data in your SQLite instance. 
+### Column Name-Based Conversion
+
+Setting `columnNameBasedConversion` to `ColumnNameBasedConverter[]` will automatically map columns based on a naming convention to the types you specify. 
+
+For instance, if all of your columns that end with `_at` are dates, you can add this:
+
+```ts
+{
+  type: "datetime",
+  match: (column) => column.endsWith("_at"),
+},
+```
+
+Columns named "`created_at`", "`updated_at`", "`deleted_at`" etc will all be converted to a `Date` type.  Rules are processed in the order they are defined.
+
+**Only one converter can be used at a time, specifying both will result in an exception being thrown.**
+
+### Type Conversion Matrix
+
+| Typescript   | SQLite Type                           | Kysely Expo Type                            |
+| ------------ | ------------------------------------- | ------------------------------------------- |
+| `boolean`    | `TEXT` "true" \| "false"              | `SQLiteType.Boolean`                        |
+| `string`     | `TEXT`                                | `SQLiteType.String`                         |
+| `Date`       | `TEXT` ISO-8601 (YYYY-MM-DD HH:MM:SS) | `SQLiteType.DateTime`                       |
+| `number`     | `INTEGER` or `REAL`                   | `SQLiteType.Integer` or `SQLiteType.Number` |
+| `any`        | `any`                                 | `SQLiteType.Any`                            |
+| `Uint8Array` | `BLOB`                                | `SQLiteType.Blob`                           |
+| `object`     | `TEXT`                                | `SQLiteType.Json`                           |
+
+
+
+## Blob Support
+
+Using the `blob` type is it possible to store binary data in your SQLite instance.  If you are planning to store files, this is not recommended.  It's better to store the files in the [documents directory](https://docs.expo.dev/versions/latest/sdk/filesystem/) and store a path reference in your SQLite database.
 
 
 ## Usage Example
@@ -159,3 +188,4 @@ To run the example app:
 ## Roadmap
 
 - [ ] Streaming support
+- [ ] Better BigInt support

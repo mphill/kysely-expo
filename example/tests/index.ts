@@ -59,19 +59,22 @@ const runner = async (database: Kysely<Database>) => {
 
   results.push({
     description: "Verify filtering on brand.is_active = false returns 1 row",
-    passed: inactiveBrands.length == 1,
+    passed: inactiveBrands.length == 1 && inactiveBrands[0].is_active === false,
   });
 
   // get min created_at and verify it's 2000-01-01 00:00:00
   const minCreatedAt = await database
     .selectFrom("brands")
-    .select(min("created_at").as("min"))
+    .select(min("created_at").as("created_at"))
     .executeTakeFirst();
+
+  console.log(minCreatedAt, minCreatedAt);
 
   results.push({
     description: "Verify min created_at is 2000-01-01 00:00:00",
     passed:
-      minCreatedAt.min.getTime() == new Date("2000-01-01 00:00:00").getTime(),
+      minCreatedAt.created_at.getTime() ==
+      new Date("2000-01-01 00:00:00").getTime(),
   });
 
   // update brand 1 name to null

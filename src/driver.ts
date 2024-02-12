@@ -15,7 +15,9 @@ import {
 } from "kysely";
 import * as SQLite from "expo-sqlite/next";
 import { ExpoDialectConfig } from "./types/expo-dialect-config";
-import { deserialize, serialize } from "./converter";
+import { deserialize as autoAffinityDeserialize } from "./converters/auto-affinity-deserialize";
+import { deserialize as nameBasedDeserialize } from "./converters/column-based-deserialize";
+import { serialize } from "./converters/serialize";
 
 /**
  * Expo dialect for Kysely.
@@ -139,14 +141,32 @@ class ExpoConnection implements DatabaseConnection {
     }
 
     if (readonly) {
-      const res = await this.sqlite.getAllAsync<R>(sql, transformedParameters);
+      let res = await this.sqlite.getAllAsync<R>(sql, transformedParameters);
 
       const skip =
         query.kind === "SelectQueryNode" && sql.includes("pragma_table_info"); // @todo: fix this hack - find a better way
 
+      if (this.config.columnNameBasedConversion && !skip) {
+        if (this.debug) console.log("processing nameBasedDeserialize");
+
+        return {
+          rows: nameBasedDeserialize(
+            res,
+            this.config.columnNameBasedConversion,
+          ),
+        } satisfies QueryResult<R>;
+      }
+
+      if (this.config.autoAffinityConversion && !skip) {
+        if (this.debug) console.log("processing autoAffinityDeserialize");
+
+        return {
+          rows: autoAffinityDeserialize(res),
+        } satisfies QueryResult<R>;
+      }
+
       return {
-        rows:
-          this.config.autoAffinityConversion && !skip ? deserialize(res) : res,
+        rows: res,
       } satisfies QueryResult<R>;
     } else {
       const res = await this.sqlite.runAsync(sql, transformedParameters);

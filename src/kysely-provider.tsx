@@ -19,6 +19,7 @@ export default function KyselyProvider<T>({
   disableForeignKeys,
   disableStrictModeCreateTable,
   autoAffinityConversion,
+  columnNameBasedConversion,
   debug,
 }: PropsWithChildren &
   ExpoDialectConfig & { onInit?: (kysely: Kysely<T>) => void }) {
@@ -26,12 +27,23 @@ export default function KyselyProvider<T>({
 
   if (!database) throw new Error("database is required");
 
+  if (
+    columnNameBasedConversion &&
+    columnNameBasedConversion.length > 0 &&
+    autoAffinityConversion
+  ) {
+    throw new Error(
+      "columnNameBasedConversion and autoAffinityConversion cannot be used together",
+    );
+  }
+
   const dialect = new ExpoDialect({
     disableStrictModeCreateTable,
     database,
     debug,
     autoAffinityConversion,
     disableForeignKeys,
+    columnNameBasedConversion,
   });
 
   const startDatabase = async () => {
