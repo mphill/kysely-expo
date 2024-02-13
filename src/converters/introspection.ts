@@ -1,3 +1,8 @@
 export type ValidTypes =
-  //   | "invalid"
-  "string" | "number" | "boolean" | "object" | "null" | "blob" | "datetime";
+  | "string"
+  | "number"
+  | "boolean"
+  | "object"
+  | "null"
+  | "blob"
+  | "datetime";

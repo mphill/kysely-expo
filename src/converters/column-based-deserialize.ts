@@ -23,6 +23,9 @@ const deserialize = <T>(
         case "object":
           row[column] = JSON.parse(row[column]);
           break;
+        case "blob":
+          row[column] = new Uint8Array(row[column]);
+          break;
       }
     });
 

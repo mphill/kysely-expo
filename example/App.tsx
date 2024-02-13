@@ -12,7 +12,7 @@ export default function App() {
     <KyselyProvider<Database>
       database="phones.db"
       autoAffinityConversion={false}
-      columnBasedConversion={[
+      columnNameBasedConversion={[
         {
           type: "datetime",
           match: (column) => column.endsWith("_at"),
