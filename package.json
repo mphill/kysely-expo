@@ -1,7 +1,7 @@
 {
   "name": "kysely-expo",
-  "version": "1.0.0-beta.2",
-  "description": "Expo support for Kysely",
+  "version": "1.0.1",
+  "description": "Expo SQLite support for Kysely",
   "author": "mphill",
   "scripts": {
     "build": "tsc",

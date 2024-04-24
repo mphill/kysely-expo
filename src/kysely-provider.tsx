@@ -51,14 +51,6 @@ export default function KyselyProvider<T>({
       dialect,
     });
 
-    if (!disableForeignKeys) {
-      sql`PRAGMA foreign_keys = ON;`.execute(database);
-    }
-
-    // if (!disableWal) {
-    //   sql`PRAGMA journal_mode = 'WAL';`.execute(database);
-    // }
-
     if (onInit) {
       onInit(database);
     }

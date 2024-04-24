@@ -111,6 +111,12 @@ class ExpoConnection implements DatabaseConnection {
 
     this.debug = config.debug ?? false;
     this.config = config;
+
+    if (this.config.disableForeignKeys) {
+      this.sqlite.execSync("PRAGMA foreign_keys = OFF;");
+    } else {
+      this.sqlite.execSync("PRAGMA foreign_keys = ON;");
+    }
   }
 
   async closeConnection(): Promise<void> {
@@ -120,7 +126,7 @@ class ExpoConnection implements DatabaseConnection {
   async executeQuery<R>(compiledQuery: CompiledQuery): Promise<QueryResult<R>> {
     let { sql, parameters, query } = compiledQuery;
 
-    // Kysely uses varchar(255) as the default string type for migrations which not supported by STRICT mode.
+    // Kysely uses varchar(255) as the default string type for migrations which is not supported by STRICT mode.
     if (
       query.kind === "CreateTableNode" &&
       !sql.includes("kysely_migration") &&

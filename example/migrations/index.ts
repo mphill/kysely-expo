@@ -48,7 +48,7 @@ export const getMigrator = (database: Kysely<Database>) =>
                   col.primaryKey().autoIncrement(),
                 )
                 .addColumn("brand_id", "integer", (col) =>
-                  col.notNull().references("brands.id"),
+                  col.notNull().references("brands.id").onDelete("cascade"),
                 )
                 .addColumn("name", SQLiteType.String, (col) =>
                   col.notNull().unique(),

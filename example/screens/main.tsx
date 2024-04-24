@@ -110,6 +110,23 @@ export default function MainScreen() {
     }
   };
 
+  // Test cascade delete
+  const handleDeleteBrand = async () => {
+    const record = await database
+      .selectFrom("brands")
+      .select(["id"])
+      .limit(1)
+      .executeTakeFirst();
+
+    if (record !== undefined) {
+      await database.deleteFrom("brands").where("id", "=", record.id).execute();
+
+      setConsoleText(`Deleted record with primary key: ${record.id}`);
+    } else {
+      setConsoleText("No records to delete");
+    }
+  };
+
   const handleUpdate = async () => {
     const record = await database
       .updateTable("phones")
@@ -168,10 +185,6 @@ export default function MainScreen() {
         name: asset.fileName ?? "unknown.ext",
       })
       .execute();
-
-    // if (!result.canceled) {
-    //   setImage(result.assets[0].uri);
-    // }
   };
 
   const handleTransaction = async () => {
@@ -243,6 +256,7 @@ export default function MainScreen() {
         <Button title="Insert" onPress={handleInsert} />
         <Button title="Select" onPress={handleSelect} />
         <Button title="Delete" onPress={handleDelete} />
+        <Button title="Delete Cascade" onPress={handleDeleteBrand} />
         <Button title="Update" onPress={handleUpdate} />
         <Button title="Transaction" onPress={handleTransaction} />
         <Button title="Store File" onPress={handlePickImage} />
