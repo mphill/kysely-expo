@@ -1,6 +1,6 @@
 {
   "name": "kysely-expo",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Expo SQLite support for Kysely",
   "author": "mphill",
   "scripts": {
@@ -15,8 +15,8 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "expo-sqlite": "^13.2.1",
-    "kysely": "^0.27.0"
+    "expo-sqlite": "^14.0.3",
+    "kysely": "^0.27.3"
   },
   "dependencies": {
     "expo-sqlite": "^14.0.3",
