@@ -2,8 +2,8 @@
 Support for [Kysely](https://github.com/kysely-org/kysely) with [Expo SQLite (Next)](https://docs.expo.dev/versions/v50.0.0/sdk/sqlite-next/)
 
 
-## Requirements
-* Expo SDK 50+
+## Supports
+* Expo SDK 51+
 * Android / iOS
 
 ## Getting Started
