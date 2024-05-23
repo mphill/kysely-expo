@@ -1,6 +1,6 @@
 {
   "name": "kysely-expo",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Expo SQLite support for Kysely",
   "author": "mphill",
   "scripts": {
