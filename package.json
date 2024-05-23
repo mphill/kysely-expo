@@ -1,6 +1,6 @@
 {
   "name": "kysely-expo",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Expo SQLite support for Kysely",
   "author": "mphill",
   "scripts": {
@@ -19,8 +19,8 @@
     "kysely": "^0.27.0"
   },
   "dependencies": {
-    "expo-sqlite": "^13.2.2",
-    "kysely": "^0.27.0"
+    "expo-sqlite": "^14.0.3",
+    "kysely": "^0.27.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.48",
