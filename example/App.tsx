@@ -39,6 +39,9 @@ export default function App() {
       onInit={(database) =>
         getMigrator(database).migrateToLatest().then(console.log, console.error)
       }
+      onError={(message, exception) => {
+        console.error(message, exception);
+      }}
     >
       <MainScreen />
     </KyselyProvider>

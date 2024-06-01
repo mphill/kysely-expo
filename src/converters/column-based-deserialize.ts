@@ -1,9 +1,12 @@
+import { safeParse } from "../helpers";
 import { ColumnNameBasedConverter } from "../types/column-name-based-converter";
+import { OnError } from "../types/error-type";
 import { ValidTypes } from "./introspection";
 
 const deserialize = <T>(
   rows: any[],
   columnBasedConverter: ColumnNameBasedConverter[],
+  onError?: OnError,
 ) => {
   const introspection = typeIntrospection(rows[0], columnBasedConverter);
 
@@ -21,7 +24,7 @@ const deserialize = <T>(
           row[column] = Boolean(row[column] === 1 || row[column] === "true");
           break;
         case "object":
-          row[column] = JSON.parse(row[column]);
+          row[column] = safeParse(row[column], onError);
           break;
         case "blob":
           row[column] = new Uint8Array(row[column]);

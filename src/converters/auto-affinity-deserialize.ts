@@ -3,10 +3,12 @@ import {
   isStringIso8601,
   isStringJson,
   isUint8Array,
+  safeParse,
 } from "../helpers";
+import { OnError } from "../types/error-type";
 import { ValidTypes } from "./introspection";
 
-const deserialize = <T>(rows: any[]): any[] => {
+const deserialize = <T>(rows: any[], onError?: OnError): any[] => {
   const typeMapping = typeIntrospection(rows[0]);
 
   const processed = rows.map((row) => {
@@ -26,7 +28,7 @@ const deserialize = <T>(rows: any[]): any[] => {
       } else if (type === "null") {
         row[key] = null;
       } else if (type === "object") {
-        row[key] = JSON.parse(value);
+        row[key] = safeParse(value, onError);
       } else if (type === "number") {
         row[key] = Number(value);
       } else if (type === "string") {

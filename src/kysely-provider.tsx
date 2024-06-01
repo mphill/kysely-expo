@@ -21,6 +21,7 @@ export default function KyselyProvider<T>({
   autoAffinityConversion,
   columnNameBasedConversion,
   debug,
+  onError,
 }: PropsWithChildren &
   ExpoDialectConfig & { onInit?: (kysely: Kysely<T>) => void }) {
   const [kyselyContext, setKyselyContext] = useState<Kysely<T>>();
@@ -44,6 +45,7 @@ export default function KyselyProvider<T>({
     autoAffinityConversion,
     disableForeignKeys,
     columnNameBasedConversion,
+    onError,
   });
 
   const startDatabase = async () => {

@@ -1,3 +1,5 @@
+import { OnError } from "../types/error-type";
+
 function isStringIso8601(date: string): boolean {
   return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(date);
 }
@@ -32,7 +34,17 @@ function isBigInt(value: unknown): value is bigint {
   return typeof value === "bigint";
 }
 
+const safeParse = (json: any, onError?: OnError) => {
+  try {
+    return JSON.parse(json);
+  } catch (e) {
+    onError && onError(`Failed to parse value: ${json}`, e);
+    return undefined;
+  }
+};
+
 export {
+  safeParse,
   isStringIso8601,
   isStringArray,
   isStringJson,

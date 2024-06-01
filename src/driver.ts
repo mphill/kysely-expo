@@ -167,7 +167,7 @@ class ExpoConnection implements DatabaseConnection {
         if (this.debug) console.log("processing autoAffinityDeserialize");
 
         return {
-          rows: autoAffinityDeserialize(res),
+          rows: autoAffinityDeserialize(res, this.config.onError),
         } satisfies QueryResult<R>;
       }
 

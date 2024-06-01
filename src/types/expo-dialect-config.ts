@@ -1,4 +1,5 @@
 import { ColumnNameBasedConverter } from "./column-name-based-converter";
+import { OnError } from "./error-type";
 
 export type ExpoDialectConfig = {
   // Name of the database file.
@@ -10,4 +11,5 @@ export type ExpoDialectConfig = {
   debug?: boolean;
   autoAffinityConversion?: boolean;
   columnNameBasedConversion?: ColumnNameBasedConverter[];
+  onError?: OnError;
 };
