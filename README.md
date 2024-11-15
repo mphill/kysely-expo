@@ -1,9 +1,9 @@
 # Kysely Expo
-Support for [Kysely](https://github.com/kysely-org/kysely) with [Expo SQLite (Next)](https://docs.expo.dev/versions/v50.0.0/sdk/sqlite-next/)
+Support for [Kysely](https://github.com/kysely-org/kysely) with [Expo SQLite (Next)](https://docs.expo.dev/versions/v52.0.0/sdk/sqlite/)
 
 
 ## Supports
-* Expo SDK 51+
+* Expo SDK 52+
 * Android / iOS
 
 ## Getting Started
