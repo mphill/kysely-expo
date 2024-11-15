@@ -1,4 +1,4 @@
-import { SQLiteBindValue } from "expo-sqlite/next";
+import { SQLiteBindValue } from "expo-sqlite";
 import { isUint8Array } from "../helpers";
 
 export const serialize = (parameters: unknown[]): SQLiteBindValue[] => {

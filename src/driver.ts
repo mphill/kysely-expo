@@ -13,7 +13,7 @@ import {
   CompiledQuery,
   SelectQueryNode,
 } from "kysely";
-import * as SQLite from "expo-sqlite/next";
+import * as SQLite from "expo-sqlite";
 import { ExpoDialectConfig } from "./types/expo-dialect-config";
 import { deserialize as autoAffinityDeserialize } from "./converters/auto-affinity-deserialize";
 import { deserialize as nameBasedDeserialize } from "./converters/column-based-deserialize";

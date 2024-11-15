@@ -58,3 +58,4 @@ jspm_packages/
 .expo
 dist
 .DS_Store
+example/.yarn/install-state.gz
