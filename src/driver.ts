@@ -107,7 +107,11 @@ class ExpoConnection implements DatabaseConnection {
   config: ExpoDialectConfig;
 
   constructor(config: ExpoDialectConfig) {
-    this.sqlite = SQLite.openDatabaseSync(config.database);
+    if (typeof config.database === "string") {
+      this.sqlite = SQLite.openDatabaseSync(config.database);
+    } else {
+      this.sqlite = config.database;
+    }
 
     this.debug = config.debug ?? false;
     this.config = config;
