@@ -74,7 +74,13 @@ export default function KyselyProvider<T>({
 
 // Export the custom hook
 function useKysely<T>(): Kysely<T> {
-  return useContext(KyselyContext) as Kysely<T>;
+  const context = useContext(KyselyContext);
+
+  if (!context) {
+    throw new Error("useKysely must be used within a KyselyProvider");
+  }
+
+  return context as Kysely<T>;
 }
 
 export { useKysely };
