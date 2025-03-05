@@ -1,4 +1,4 @@
-import { Kysely, sql } from "kysely";
+import { Kysely } from "kysely";
 import { Database } from "../screens/main";
 
 type TestCase = {
@@ -171,6 +171,119 @@ const runner = async (database: Kysely<Database>) => {
     results.push({
       description: "Verify object type is stored correctly",
       passed: true,
+    });
+  }
+
+  // Test for transaction rollback
+  try {
+    await database.transaction().execute(async (trx) => {
+      // Insert a test record
+      await trx
+        .insertInto("brands")
+        .values({
+          name: "Transaction Test Brand",
+          is_active: true,
+          created_at: new Date(),
+        })
+        .execute();
+
+      // Force an error to trigger rollback
+      throw new Error("Intentional error to test transaction rollback");
+    });
+
+    results.push({
+      description: "Verify transaction rollback works correctly",
+      passed: false,
+      message: "Transaction should have rolled back but didn't throw an error",
+    });
+  } catch (e) {
+    // Check if the record was not inserted (rollback worked)
+    const transactionBrand = await database
+      .selectFrom("brands")
+      .select("name")
+      .where("name", "=", "Transaction Test Brand")
+      .executeTakeFirst();
+
+    results.push({
+      description: "Verify transaction rollback works correctly",
+      passed: transactionBrand === undefined,
+      message: transactionBrand
+        ? "Transaction didn't roll back properly"
+        : "Transaction rolled back successfully",
+    });
+  }
+
+  // Test for JOIN operations
+  try {
+    // Insert a test product linked to brand 1
+    await database
+      .insertInto("phones")
+      .values({
+        name: "Test Join Product",
+        brand_id: 1,
+        created_at: new Date(),
+        is_active: true,
+        meta_json: {
+          foo: "bar",
+          bar: 123,
+        },
+      })
+      .execute();
+
+    // Test JOIN query
+    const joinResult = await database
+      .selectFrom("phones")
+      .innerJoin("brands", "brands.id", "phones.brand_id")
+      .select(["phones.name as product_name", "brands.name as brand_name"])
+      .where("phones.name", "=", "Test Join Product")
+      .executeTakeFirst();
+
+    results.push({
+      description: "Verify JOIN operations work correctly",
+      passed:
+        joinResult !== undefined &&
+        joinResult.product_name === "Test Join Product" &&
+        joinResult.brand_name !== undefined,
+      message: joinResult
+        ? "JOIN operation successful"
+        : "JOIN operation failed",
+    });
+
+    await database
+      .deleteFrom("phones")
+      .where("name", "=", "Test Join Product")
+      .execute();
+  } catch (e) {
+    console.log("!!!", e);
+    results.push({
+      description: "Verify JOIN operations work correctly",
+      passed: false,
+      message: `JOIN test failed with error: ${e}`,
+    });
+  }
+
+  // Test for LIKE operator
+  try {
+    const likeResults = await database
+      .selectFrom("brands")
+      .select("name")
+      .where("name", "like", "%apple%")
+      .execute();
+
+    results.push({
+      description: "Verify LIKE operator works correctly",
+      passed: likeResults.length > 0,
+      message:
+        likeResults.length > 0
+          ? "LIKE operator returned expected results"
+          : "LIKE operator failed to return results",
+    });
+  } catch (e) {
+    console.log("!!!", e);
+    results.push({
+      description: "Verify LIKE operator works correctly",
+      passed: false,
+      message: `LIKE test failed with error: ${e}`,
     });
   }
 
