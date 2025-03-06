@@ -14,6 +14,16 @@
     "dist/"
   ],
   "license": "MIT",
+  "keywords": [
+    "kysely",
+    "sqlite",
+    "expo",
+    "react-native",
+    "typescript",
+    "database",
+    "sql",
+    "query builder"
+  ],
   "peerDependencies": {
     "expo-sqlite": "^15.1.2",
     "kysely": "^0.27.6"
