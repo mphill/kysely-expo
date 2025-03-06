@@ -32,16 +32,12 @@ const runner = async (database: Kysely<Database>) => {
     .where("id", "in", [1, 2])
     .executeTakeFirst();
 
-  console.log(result);
-
   // get all brands with created_at > avg
   const brands = await database
     .selectFrom("brands")
     .select(["brands.name", "brands.created_at"])
     .where("created_at", ">", new Date("2010-06-01 00:00:00"))
     .execute();
-
-  console.log(brands);
 
   // set brand 1 is_active to false
   await database
@@ -68,8 +64,6 @@ const runner = async (database: Kysely<Database>) => {
     .select(min("created_at").as("created_at"))
     .executeTakeFirst();
 
-  console.log(minCreatedAt, minCreatedAt);
-
   results.push({
     description: "Verify min created_at is 2000-01-01 00:00:00",
     passed:
@@ -78,9 +72,7 @@ const runner = async (database: Kysely<Database>) => {
   });
 
   // update brand 1 name to null
-
   try {
-    console.log("update brand 1 name to null");
     await database
       .updateTable("brands")
       .set({ name: null })
@@ -254,7 +246,6 @@ const runner = async (database: Kysely<Database>) => {
       .where("name", "=", "Test Join Product")
       .execute();
   } catch (e) {
-    console.log("!!!", e);
     results.push({
       description: "Verify JOIN operations work correctly",
       passed: false,
@@ -279,11 +270,85 @@ const runner = async (database: Kysely<Database>) => {
           : "LIKE operator failed to return results",
     });
   } catch (e) {
-    console.log("!!!", e);
     results.push({
       description: "Verify LIKE operator works correctly",
       passed: false,
       message: `LIKE test failed with error: ${e}`,
+    });
+  }
+
+  // Test for RETURNING clause
+  try {
+    // Insert a record with RETURNING clause
+    const insertResult = await database
+      .insertInto("phones")
+      .values({
+        name: "Returning Test Phone",
+        brand_id: 1,
+        created_at: new Date(),
+        is_active: true,
+        meta_json: {
+          foo: "returning test",
+          bar: 456,
+        },
+      })
+      .returning(["id", "name", "brand_id"])
+      .executeTakeFirst();
+
+    results.push({
+      description: "Verify INSERT with RETURNING clause works correctly",
+      passed:
+        insertResult !== undefined &&
+        insertResult.id !== undefined &&
+        insertResult.name === "Returning Test Phone" &&
+        insertResult.brand_id === 1,
+      message: insertResult
+        ? "INSERT with RETURNING clause successful"
+        : "INSERT with RETURNING clause failed",
+    });
+
+    // Update a record with RETURNING clause
+    const updateResult = await database
+      .updateTable("phones")
+      .set({ name: "Updated Returning Test Phone" })
+      .where("name", "=", "Returning Test Phone")
+      .returning(["id", "name"])
+      .executeTakeFirst();
+
+    results.push({
+      description: "Verify UPDATE with RETURNING clause works correctly",
+      passed:
+        updateResult !== undefined &&
+        updateResult.id !== undefined &&
+        updateResult.name === "Updated Returning Test Phone",
+      message: updateResult
+        ? "UPDATE with RETURNING clause successful"
+        : "UPDATE with RETURNING clause failed",
+    });
+
+    // Delete a record with RETURNING clause
+    const deleteResult = await database
+      .deleteFrom("phones")
+      .where("name", "=", "Updated Returning Test Phone")
+      .returning(["id", "name"])
+      .executeTakeFirst();
+
+    results.push({
+      description: "Verify DELETE with RETURNING clause works correctly",
+      passed:
+        deleteResult !== undefined &&
+        deleteResult.id !== undefined &&
+        deleteResult.name === "Updated Returning Test Phone",
+      message: deleteResult
+        ? "DELETE with RETURNING clause successful"
+        : "DELETE with RETURNING clause failed",
+    });
+  } catch (e) {
+    console.error("Error in RETURNING clause tests:", e);
+    results.push({
+      description: "Verify RETURNING clause operations",
+      passed: false,
+      message: `Error in RETURNING clause tests: ${e}`,
     });
   }
 

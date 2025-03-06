@@ -1116,14 +1116,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-sqlite@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "expo-sqlite@npm:15.0.3"
+"expo-sqlite@npm:^15.1.2":
+  version: 15.1.2
+  resolution: "expo-sqlite@npm:15.1.2"
   peerDependencies:
     expo: "*"
     react: "*"
     react-native: "*"
-  checksum: 10c0/4d2ef1fca23bebaefc37e9f015c67465e115c01c2fc2deaa7c524f85d2f9f0bf9c337008d92d41416f4813bc85c7681eb919e1df28f3d2a493ca97b94aee01bc
+  checksum: 10c0/35987cd9b74cbc90e014318b3deaa05014be9587bd5884f83b2392d354e4ad04a70860f520893aa9a16f28e014263bb67be2dcb72f0f97c54cec4c7f063aa7b7
   languageName: node
   linkType: hard
 
@@ -1805,19 +1805,19 @@ __metadata:
     eslint: "npm:^8.57.1"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-config-universe: "npm:^12.1.0"
-    expo-sqlite: "npm:^15.0.3"
-    kysely: "npm:^0.27.4"
+    expo-sqlite: "npm:^15.1.2"
+    kysely: "npm:^0.27.6"
     prettier: "npm:^3.3.3"
   peerDependencies:
-    expo-sqlite: ^15.0.3
-    kysely: ^0.27.4
+    expo-sqlite: ^15.1.2
+    kysely: ^0.27.6
   languageName: unknown
   linkType: soft
 
-"kysely@npm:^0.27.4":
-  version: 0.27.4
-  resolution: "kysely@npm:0.27.4"
-  checksum: 10c0/05d223dca3f69778e28511d30cfff485e8e035a43fb01b24f1624b87f850cd6f87e33dcc04e752f7454ac8aed2743d982dabe3be6bc402c63568d020d5b0dd1d
+"kysely@npm:^0.27.6":
+  version: 0.27.6
+  resolution: "kysely@npm:0.27.6"
+  checksum: 10c0/81cf668d196be265fa6782afb72d051590ce3f5c72b6456cc4a6eccbdfbac12bb1c938a8ec09b45de995854cfffb9972ce19553df2a4cf13dded3dc6cdddc326
   languageName: node
   linkType: hard
 

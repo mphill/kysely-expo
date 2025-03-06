@@ -12,6 +12,9 @@ import {
   Dialect,
   CompiledQuery,
   SelectQueryNode,
+  InsertQueryNode,
+  UpdateQueryNode,
+  DeleteQueryNode,
 } from "kysely";
 import * as SQLite from "expo-sqlite";
 import { ExpoDialectConfig } from "./types/expo-dialect-config";
@@ -81,7 +84,7 @@ export class ExpoDriver implements Driver {
   }
 
   async destroy(): Promise<void> {
-    this.#connection.closeConnection();
+    await this.#connection.closeConnection();
   }
 
   async getDatabaseRuntimeVersion() {
@@ -144,13 +147,17 @@ class ExpoConnection implements DatabaseConnection {
     const readonly =
       query.kind === "SelectQueryNode" || query.kind === "RawNode";
 
+    // Check if the query has a RETURNING clause
+    const hasReturning = sql.toUpperCase().includes("RETURNING");
+
     const transformedParameters = serialize([...parameters]);
 
     if (this.debug) {
       console.debug(`${query.kind}${readonly ? " (readonly)" : ""}: ${sql}`);
+      if (hasReturning) console.debug("Query has RETURNING clause");
     }
 
-    if (readonly) {
+    if (readonly || hasReturning) {
       let res = await this.sqlite.getAllAsync<R>(sql, transformedParameters);
 
       const skip =
@@ -164,6 +171,14 @@ class ExpoConnection implements DatabaseConnection {
             res,
             this.config.columnNameBasedConversion,
           ),
+          // Add these properties for non-readonly queries with RETURNING
+          ...(hasReturning && !readonly
+            ? {
+                numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
+                numAffectedRows: BigInt(0), // We don't know this value
+                insertId: BigInt(0), // We don't know this value
+              }
+            : {}),
         } satisfies QueryResult<R>;
       }
 
@@ -172,11 +187,27 @@ class ExpoConnection implements DatabaseConnection {
 
         return {
           rows: autoAffinityDeserialize(res, this.config.onError),
+          // Add these properties for non-readonly queries with RETURNING
+          ...(hasReturning && !readonly
+            ? {
+                numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
+                numAffectedRows: BigInt(0), // We don't know this value
+                insertId: BigInt(0), // We don't know this value
+              }
+            : {}),
         } satisfies QueryResult<R>;
       }
 
       return {
         rows: res,
+        // Add these properties for non-readonly queries with RETURNING
+        ...(hasReturning && !readonly
+          ? {
+              numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
+              numAffectedRows: BigInt(0), // We don't know this value
+              insertId: BigInt(0), // We don't know this value
+            }
+          : {}),
       } satisfies QueryResult<R>;
     } else {
       const res = await this.sqlite.runAsync(sql, transformedParameters);
