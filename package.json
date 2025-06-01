@@ -25,8 +25,8 @@
     "query builder"
   ],
   "peerDependencies": {
-    "expo-sqlite": "^15.1.2",
-    "kysely": "^0.27.6"
+    "expo-sqlite": "^15.2.10",
+    "kysely": "^0.28.2"
   },
   "dependencies": {
     "expo-sqlite": "^15.2.10",
