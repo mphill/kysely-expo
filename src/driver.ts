@@ -174,7 +174,6 @@ class ExpoConnection implements DatabaseConnection {
           // Add these properties for non-readonly queries with RETURNING
           ...(hasReturning && !readonly
             ? {
-                numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
                 numAffectedRows: BigInt(0), // We don't know this value
                 insertId: BigInt(0), // We don't know this value
               }
@@ -190,7 +189,6 @@ class ExpoConnection implements DatabaseConnection {
           // Add these properties for non-readonly queries with RETURNING
           ...(hasReturning && !readonly
             ? {
-                numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
                 numAffectedRows: BigInt(0), // We don't know this value
                 insertId: BigInt(0), // We don't know this value
               }
@@ -203,7 +201,6 @@ class ExpoConnection implements DatabaseConnection {
         // Add these properties for non-readonly queries with RETURNING
         ...(hasReturning && !readonly
           ? {
-              numUpdatedOrDeletedRows: BigInt(0), // We don't know this value
               numAffectedRows: BigInt(0), // We don't know this value
               insertId: BigInt(0), // We don't know this value
             }
@@ -213,7 +210,6 @@ class ExpoConnection implements DatabaseConnection {
       const res = await this.sqlite.runAsync(sql, transformedParameters);
 
       const queryResult = {
-        numUpdatedOrDeletedRows: BigInt(res.changes),
         numAffectedRows: BigInt(res.changes),
         insertId: BigInt(res.lastInsertRowId),
         rows: [],
