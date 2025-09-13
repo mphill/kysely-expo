@@ -7,8 +7,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function App() {
   useEffect(() => {
-    console.log(`${FileSystem.documentDirectory}/SQLite/`);
+    console.log(`${FileSystem.Paths.document}/SQLite/`);
   }, []);
+
   return (
     <SafeAreaProvider style={{ flex: 1 }}>
       <KyselyProvider<Database>

@@ -10,25 +10,25 @@
   },
   "dependencies": {
     "@babel/plugin-transform-private-methods": "^7.27.1",
-    "expo": "^53.0.9",
-    "expo-dev-client": "~5.1.8",
-    "expo-file-system": "~18.1.10",
-    "expo-image-picker": "~16.1.4",
-    "expo-splash-screen": "~0.30.8",
-    "expo-status-bar": "~2.2.3",
+    "expo": "^54.0.0",
+    "expo-dev-client": "~6.0.12",
+    "expo-file-system": "~19.0.14",
+    "expo-image-picker": "~17.0.8",
+    "expo-splash-screen": "~31.0.10",
+    "expo-status-bar": "~3.0.8",
     "kysely-expo": "file:./node_modules/kysely-expo#./node_modules/kysely-expo::hash=792635&locator=example%40workspace%3A.",
-    "react": "19.0.0",
-    "react-native": "0.79.2",
-    "react-native-safe-area-context": "5.4.1"
+    "react": "19.1.0",
+    "react-native": "0.81.4",
+    "react-native-safe-area-context": "~5.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
-    "@types/react": "~19.0.10",
+    "@types/react": "~19.1.10",
     "@types/react-native": "^0.73.0",
-    "expo-sqlite": "~15.2.10",
-    "kysely": "^0.28.2",
-    "metro": "^0.82.4",
-    "typescript": "~5.8.3"
+    "expo-sqlite": "~16.0.8",
+    "kysely": "^0.28.6",
+    "metro": "^0.83.1",
+    "typescript": "~5.9.2"
   },
   "private": true,
   "resolutions": {
