@@ -10,9 +10,7 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist/"
-  ],
+  "files": ["dist/"],
   "license": "MIT",
   "keywords": [
     "kysely",
@@ -25,11 +23,11 @@
     "query builder"
   ],
   "peerDependencies": {
-    "expo-sqlite": "^15.2.10",
+    "expo-sqlite": "^16.0.8",
     "kysely": "^0.28.2"
   },
   "dependencies": {
-    "expo-sqlite": "^15.2.10",
+    "expo-sqlite": "^16.0.8",
     "kysely": "^0.28.2"
   },
   "devDependencies": {
