@@ -158,8 +158,8 @@ const migrator = new Migrator({
             .addColumn("id", "integer", (col) =>
               col.primaryKey().autoIncrement()
             )
-            .addColumn("message", SQLiteTypes.String, (col) => col.notNull())
-            .addColumn("created_at", SQLiteTypes.DateTime, (col) => col.notNull())
+            .addColumn("message", SQLiteType.String, (col) => col.notNull())
+            .addColumn("created_at", SQLiteType.DateTime, (col) => col.notNull())
             .execute();
         },
       },
