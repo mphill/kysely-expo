@@ -6,32 +6,31 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "setup": "cd .. && tsc && cd example && yarn install && rm -rf node_modules/kysely-expo && cp -R ../dist node_modules/kysely-expo"
+    "setup": "cd .. && bun install && cd example && bun install && cd .. && bun run build"
   },
   "dependencies": {
     "@babel/plugin-transform-private-methods": "^7.27.1",
-    "expo": "^54.0.0",
-    "expo-dev-client": "~6.0.12",
-    "expo-file-system": "~19.0.14",
-    "expo-image-picker": "~17.0.8",
-    "expo-splash-screen": "~31.0.10",
-    "expo-status-bar": "~3.0.8",
-    "kysely-expo": "file:./node_modules/kysely-expo#./node_modules/kysely-expo::hash=792635&locator=example%40workspace%3A.",
-    "react": "19.1.0",
-    "react-native": "0.81.4",
-    "react-native-safe-area-context": "~5.6.0"
+    "expo": "^56.0.0",
+    "expo-dev-client": "~56.0.18",
+    "expo-file-system": "~56.0.7",
+    "expo-image-picker": "~56.0.15",
+    "expo-splash-screen": "~56.0.10",
+    "expo-status-bar": "~56.0.4",
+    "react": "19.2.3",
+    "react-native": "0.85.3",
+    "react-native-safe-area-context": "~5.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
-    "@types/react": "~19.1.10",
+    "@types/react": "~19.2.15",
     "@types/react-native": "^0.73.0",
-    "expo-sqlite": "~16.0.8",
-    "kysely": "^0.28.6",
-    "metro": "^0.83.1",
+    "expo-sqlite": "~56.0.4",
+    "kysely": "^0.29.2",
+    "metro": "^0.84.4",
     "typescript": "~5.9.2"
   },
   "private": true,
-  "resolutions": {
+  "overrides": {
     "string-width": "4.2.3"
   }
 }

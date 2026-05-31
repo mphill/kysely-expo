@@ -9,7 +9,7 @@ Support for [Kysely](https://github.com/kysely-org/kysely) with [Expo SQLite (Ne
 ## Getting Started
 - Install kysely-expo
 
-`yarn add kysely-expo`
+`bun add kysely-expo`
 
 or 
 
@@ -174,16 +174,14 @@ const result = await migrator.migrateToLatest();
 
 ## Sample App
 
-A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and perform basic CRUD operations.  React Native applications do not support `npm link` so `yarn setup` will copy the files locally.
+A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and perform basic CRUD operations.  React Native applications do not support `npm link` so `bun run setup` will build the library and copy the files locally.
 
 To run the example app:
 
 1. Clone the repo: git clone https://github.com/mphill/kysely-expo.git
-2. `yarn build`
-3. `cd example`
-4. `yarn install`
-5. `yarn setup`
-6. `npx expo start`
+2. `cd example`
+3. `bun run setup`
+4. `bun start`
 
 ## Roadmap
 

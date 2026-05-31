@@ -25,18 +25,19 @@
     "query builder"
   ],
   "peerDependencies": {
-    "expo-sqlite": "^16.0.8",
-    "kysely": "^0.28.6"
+    "expo-sqlite": "^56.0.4",
+    "kysely": "^0.29.2"
   },
   "dependencies": {
-    "expo-sqlite": "^16.0.8",
-    "kysely": "^0.28.6"
+    "expo-sqlite": "^56.0.4",
+    "kysely": "^0.29.2"
   },
   "devDependencies": {
-    "@types/react": "^19.1.13",
+    "@types/react": "^19.2.15",
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-config-universe": "^15.0.3",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "typescript": "~5.9.2"
   }
 }
