@@ -223,16 +223,16 @@ This is bundle-time only — `Migrator`, `ExpoMigrationProvider`, and your migra
 
 ## Sample App
 
-A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and perform basic CRUD operations.  React Native applications do not support `npm link` so `bun setup` will copy the files locally.
+A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and perform basic CRUD operations.  React Native does not support `npm link`, so the example depends on a locally packed tarball (`file:../kysely-expo.local.tgz`) instead of the published package. `bun run setup` builds the library, packs it, and installs it — so `bun install` always resolves the local source rather than the registry.
 
 To run the example app:
 
-1. Clone the repo: git clone https://github.com/mphill/kysely-expo.git
-2. `bun run build`
-3. `cd example`
-4. `bun install`
-5. `bun setup`
-6. `npx expo start`
+1. Clone the repo: `git clone https://github.com/mphill/kysely-expo.git`
+2. `cd example`
+3. `bun run setup`
+4. `npx expo start`
+
+After the first `bun run setup`, a plain `bun install` keeps using the local tarball. Re-run `bun run setup` whenever you change the library source.
 
 ## Roadmap
 

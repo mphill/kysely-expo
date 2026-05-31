@@ -6,13 +6,13 @@
       "name": "example",
       "dependencies": {
         "buffer": "^6.0.3",
-        "expo": "^56.0.0",
+        "expo": "~56.0.8",
         "expo-dev-client": "~56.0.18",
         "expo-file-system": "~56.0.7",
         "expo-image-picker": "~56.0.15",
         "expo-splash-screen": "~56.0.10",
         "expo-status-bar": "~56.0.4",
-        "kysely-expo": "*",
+        "kysely-expo": "file:../kysely-expo.local.tgz",
         "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-safe-area-context": "~5.7.0",
@@ -572,7 +572,7 @@
 
     "kysely": ["kysely@0.29.2", "", {}, "sha512-s6WVJyEZrbm6jhBpiKHsGHyePMrVQKJ85wZCFCr9W4QHv6WTjWIrdvTmO9hDEA3bNK0xkrE2DqrHsXMLWuZpQg=="],
 
-    "kysely-expo": ["kysely-expo@55.0.0", "", { "peerDependencies": { "expo-sqlite": "^55.0.16", "kysely": "^0.29.2", "react": "*" } }, "sha512-fLHgfCFXj/XgZQufGv3Bp6jkvGLNy8ykT6E9PAYQ4krlt43s4zgQrGKqeEufvdS668sdgO2IyakkIC99BChwiQ=="],
+    "kysely-expo": ["kysely-expo@../kysely-expo.local.tgz", { "peerDependencies": { "expo-sqlite": "^56.0.4", "kysely": "^0.29.2", "react": "*" } }],
 
     "lan-network": ["lan-network@0.2.1", "", { "bin": { "lan-network": "dist/lan-network-cli.js" } }, "sha512-ONPnazC96VKDntab9j9JKwIWhZ4ZUceB4A9Epu4Ssg0hYFmtHZSeQ+n15nIwTFmcBUKtExOer8WTJ4GF9MO64A=="],
 

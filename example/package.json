@@ -6,7 +6,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "setup": "cd .. && tsc && cd example && bun install && rm -rf node_modules/kysely-expo && cp -R ../dist node_modules/kysely-expo"
+    "setup": "cd .. && bun run build && bun pm pack --filename kysely-expo.local.tgz --quiet && cd example && bun install --force"
   },
   "dependencies": {
     "buffer": "^6.0.3",
@@ -16,7 +16,7 @@
     "expo-image-picker": "~56.0.15",
     "expo-splash-screen": "~56.0.10",
     "expo-status-bar": "~56.0.4",
-    "kysely-expo": "*",
+    "kysely-expo": "file:../kysely-expo.local.tgz",
     "react": "19.2.3",
     "react-native": "0.85.3",
     "react-native-safe-area-context": "~5.7.0"
