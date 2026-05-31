@@ -9,14 +9,14 @@
         "eslint": "^9.35.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-config-universe": "^15.0.3",
-        "expo-sqlite": "^55.0.16",
+        "expo-sqlite": "^56.0.4",
         "kysely": "^0.29.2",
         "prettier": "^3.6.2",
         "react": "^19.2.0",
         "typescript": "^5.9.3",
       },
       "peerDependencies": {
-        "expo-sqlite": "^55.0.16",
+        "expo-sqlite": "^56.0.4",
         "kysely": "^0.29.2",
         "react": "*",
       },
@@ -617,7 +617,7 @@
 
     "expo-server": ["expo-server@56.0.4", "", {}, "sha512-4dJ57KuAwDl7eQGD6aG9kTzBIftWAfHH1+6Zxy7NcPCBrKYis3/H5enGUz1asH8HHhONXfJ5BdJqfEWAEAgWxA=="],
 
-    "expo-sqlite": ["expo-sqlite@55.0.16", "", { "dependencies": { "await-lock": "^2.2.2" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-v6EIL4ygqWt/+ZfI76jIIv+IIaU8PnWPNjkmIN95vEQgh0FrWqzwssqe5ffQmm79kIfqIPTtAgTdl8MuZv88gg=="],
+    "expo-sqlite": ["expo-sqlite@56.0.4", "", { "dependencies": { "await-lock": "^2.2.2" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-Ak8TUyrvK7C/J4BHBfcb8BacFrH8I+b+zqeSTKg5B02Z13lxljvuqI8UvKbRNa5BKprlxrqabZickGwacRkM9g=="],
 
     "exponential-backoff": ["exponential-backoff@3.1.3", "", {}, "sha512-ZgEeZXj30q+I0EN+CbSSpIyPaJ5HVQD18Z1m+u1FXbAeT94mr1zw50q4q6jiiC447Nl/YTcIYSAftiGqetwXCA=="],
 
