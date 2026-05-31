@@ -2,12 +2,12 @@ import MainScreen, { Database } from "./screens/main";
 import { KyselyProvider, useKysely } from "kysely-expo";
 import React, { useEffect } from "react";
 import { getMigrator } from "./migrations";
-import { Paths } from "expo-file-system";
+import * as FileSystem from "expo-file-system";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function App() {
   useEffect(() => {
-    console.log(`${Paths.document}/SQLite/`);
+    console.log(`${FileSystem.Paths.document}/SQLite/`);
   }, []);
 
   return (

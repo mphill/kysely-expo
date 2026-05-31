@@ -1,12 +1,11 @@
 {
   "name": "kysely-expo",
-  "version": "55.0.0",
+  "version": "5.0.0",
   "description": "Expo SQLite support for Kysely",
   "author": "mphill",
   "scripts": {
-    "build": "tsc",
-    "sync-example": "rm -rf example/node_modules/kysely-expo && mkdir -p example/node_modules/kysely-expo && cp package.json example/node_modules/kysely-expo && cp -R dist example/node_modules/kysely-expo",
-    "prepublishOnly": "npm run build",
+    "build": "tsc && rm -rf example/node_modules/kysely-expo && mkdir example/node_modules/kysely-expo && cp package.json example/node_modules/kysely-expo && cp -R dist example/node_modules/kysely-expo",
+    "publish": "tsc && npm publish",
     "lint": "eslint ."
   },
   "main": "dist/index.js",
@@ -26,19 +25,18 @@
     "query builder"
   ],
   "peerDependencies": {
-    "expo-sqlite": "^55.0.16",
-    "kysely": "^0.29.2",
-    "react": "*"
+    "expo-sqlite": "^16.0.8",
+    "kysely": "^0.28.6"
+  },
+  "dependencies": {
+    "expo-sqlite": "^16.0.8",
+    "kysely": "^0.28.6"
   },
   "devDependencies": {
     "@types/react": "^19.1.13",
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-config-universe": "^15.0.3",
-    "expo-sqlite": "^55.0.16",
-    "kysely": "^0.29.2",
-    "prettier": "^3.6.2",
-    "react": "^19.2.0",
-    "typescript": "^5.9.3"
+    "prettier": "^3.6.2"
   }
 }

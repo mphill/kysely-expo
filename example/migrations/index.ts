@@ -1,5 +1,4 @@
-import { Kysely, sql } from "kysely";
-import { Migrator } from "kysely/migration";
+import { Kysely, Migrator, sql } from "kysely";
 
 import { ExpoMigrationProvider, SQLiteType } from "kysely-expo";
 import { Database } from "../screens/main";

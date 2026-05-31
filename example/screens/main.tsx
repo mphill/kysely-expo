@@ -10,7 +10,7 @@ import { sql } from "kysely";
 import { FileTable } from "../tables/file-table";
 
 import * as ImagePicker from "expo-image-picker";
-import { File } from "expo-file-system";
+import * as FileSystem from "expo-file-system";
 import { base64ToBlob } from "../utils";
 import { TypeTestsTable } from "../tables/type-tests-tables";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -161,22 +161,21 @@ export default function MainScreen() {
   const handlePickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images", "videos"],
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
 
-    if (result.canceled) {
-      return;
-    }
-
     const asset = result.assets[0];
 
     console.log("Reading path", asset.uri);
 
-    const file = new File(asset.uri);
-    const binary = base64ToBlob(await file.base64());
+    const binary = base64ToBlob(
+      await FileSystem.readAsStringAsync(asset.uri, {
+        encoding: "base64",
+      }),
+    );
 
     await database
       .insertInto("files")

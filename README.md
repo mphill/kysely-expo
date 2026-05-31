@@ -1,17 +1,17 @@
 # Kysely Expo
-Support for [Kysely](https://github.com/kysely-org/kysely) with [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/)
+Support for [Kysely](https://github.com/kysely-org/kysely) with [Expo SQLite (Next)](https://docs.expo.dev/versions/v52.0.0/sdk/sqlite/)
 
 
 ## Supports
-* Expo SDK 55+
+* Expo SDK 52+
 * Android / iOS
 
 ## Getting Started
 - Install kysely-expo
 
-`bun add kysely-expo`
+`yarn add kysely-expo`
 
-or
+or 
 
 `npm i kysely-expo`
 
@@ -90,7 +90,7 @@ Using the `blob` type is it possible to store binary data in your SQLite instanc
 ## Usage Example
 
 ```tsx
-import { KyselyProvider, useKysely } from "kysely-expo";
+import { ExpoDialect } from "kysely-expo";
 import { Generated } from "kysely";
 
 interface LogTable {
@@ -121,8 +121,8 @@ export default function App() {
 
 function MainScreen() {
         
-  const database = useKysely<Database>();
-
+  const { database } = useKysely<Database>();
+  
   const handleInsert = async () => {
     const result = await database
       .insertInto("logs")
@@ -172,66 +172,17 @@ const result = await migrator.migrateToLatest();
 
 ```
 
-### Hermes / EAS build setup (required for migrations)
-
-If you use migrations, you import `Migrator` from `kysely/migration`. That entry point also pulls in Kysely's Node-only `FileMigrationProvider`, which contains a dynamic `import(filePath)` expression. The Hermes engine cannot compile a dynamic import with a non-literal path, so **production/cloud builds fail** even though `expo start` works:
-
-```
-error: Invalid expression encountered
-  ... yield import(/* webpackIgnore: true */ filePath);
-hermesc ... exited with non-zero code: 2
-```
-
-React Native never constructs `FileMigrationProvider` (you use `ExpoMigrationProvider` instead), so the file only needs to be excluded from the bundle. Add a Metro resolver that swaps it for an empty module.
-
-Create `metro-stubs/empty.js`:
-
-```js
-module.exports = {};
-```
-
-Then in `metro.config.js`:
-
-```js
-const { getDefaultConfig } = require("expo/metro-config");
-const path = require("path");
-
-const config = getDefaultConfig(__dirname);
-const emptyStub = path.resolve(__dirname, "metro-stubs/empty.js");
-const defaultResolveRequest = config.resolver.resolveRequest;
-
-config.resolver.resolveRequest = (context, moduleName, platform) => {
-  const resolve = defaultResolveRequest ?? context.resolveRequest;
-  const resolved = resolve(context, moduleName, platform);
-
-  if (
-    resolved.type === "sourceFile" &&
-    resolved.filePath
-      .replace(/\\/g, "/")
-      .endsWith("kysely/dist/migration/file-migration-provider.js")
-  ) {
-    return { type: "sourceFile", filePath: emptyStub };
-  }
-
-  return resolved;
-};
-
-module.exports = config;
-```
-
-This is bundle-time only — `Migrator`, `ExpoMigrationProvider`, and your migrations are unaffected at runtime.
-
 ## Sample App
 
-A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and perform basic CRUD operations.  React Native applications do not support `npm link` so `bun setup` will copy the files locally.
+A sample Expo app is included in the `example` folder.  It is a simple app that uses Expo SQLite and Kysely to create a database and perform basic CRUD operations.  React Native applications do not support `npm link` so `yarn setup` will copy the files locally.
 
 To run the example app:
 
 1. Clone the repo: git clone https://github.com/mphill/kysely-expo.git
-2. `bun run build`
+2. `yarn build`
 3. `cd example`
-4. `bun install`
-5. `bun setup`
+4. `yarn install`
+5. `yarn setup`
 6. `npx expo start`
 
 ## Roadmap
