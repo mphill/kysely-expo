@@ -67,7 +67,7 @@ const runner = async (database: Kysely<Database>) => {
   results.push({
     description: "Verify min created_at is 2000-01-01 00:00:00",
     passed:
-      minCreatedAt.created_at.getTime() ==
+      minCreatedAt?.created_at.getTime() ==
       new Date("2000-01-01 00:00:00").getTime(),
   });
 
@@ -75,6 +75,7 @@ const runner = async (database: Kysely<Database>) => {
   try {
     await database
       .updateTable("brands")
+      // @ts-expect-error intentionally violating the NOT NULL constraint to verify it is enforced at runtime
       .set({ name: null })
       .where("id", "=", 1)
       .execute();
@@ -99,7 +100,7 @@ const runner = async (database: Kysely<Database>) => {
     .select([database.fn.countAll().as("count")])
     .executeTakeFirst();
 
-  if (rowCount.count !== 0) {
+  if (rowCount?.count !== 0) {
     results.push({
       description: "Verify type_tests is empty",
       passed: false,

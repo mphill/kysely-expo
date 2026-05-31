@@ -1,4 +1,4 @@
-import { Migration, MigrationProvider } from "kysely";
+import { Migration, MigrationProvider } from "kysely/migration";
 
 type ExpoMigrationProviderProps = {
 	migrations: Record<string, Migration>;
