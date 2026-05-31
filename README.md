@@ -230,7 +230,7 @@ To run the example app:
 1. Clone the repo: `git clone https://github.com/mphill/kysely-expo.git`
 2. `cd example`
 3. `bun run setup`
-4. `npx expo start`
+4. `bunx expo start`
 
 After the first `bun run setup`, a plain `bun install` keeps using the local tarball. Re-run `bun run setup` whenever you change the library source.
 
