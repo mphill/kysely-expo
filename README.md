@@ -3,7 +3,7 @@ Support for [Kysely](https://github.com/kysely-org/kysely) with [Expo SQLite](ht
 
 
 ## Supports
-* Expo SDK 55+
+* Expo SDK 56+
 * Android / iOS
 
 ## Getting Started

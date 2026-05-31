@@ -1,6 +1,6 @@
 {
   "name": "kysely-expo",
-  "version": "55.0.0",
+  "version": "56.0.0",
   "description": "Expo SQLite support for Kysely",
   "author": "mphill",
   "scripts": {
@@ -26,7 +26,7 @@
     "query builder"
   ],
   "peerDependencies": {
-    "expo-sqlite": "^55.0.16",
+    "expo-sqlite": "^56.0.4",
     "kysely": "^0.29.2",
     "react": "*"
   },
@@ -35,7 +35,7 @@
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-config-universe": "^15.0.3",
-    "expo-sqlite": "^55.0.16",
+    "expo-sqlite": "^56.0.4",
     "kysely": "^0.29.2",
     "prettier": "^3.6.2",
     "react": "^19.2.0",
